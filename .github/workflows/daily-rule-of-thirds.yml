@@ -1,0 +1,39 @@
+name: BTC 4H Rule of Thirds
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Crypto trades 24/7. These runs happen shortly after each 4-hour candle closes.
+    # GitHub cron uses UTC.
+    - cron: "12 0,4,8,12,16,20 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  calculate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Calculate BTC/USDT 4H Rule of Thirds
+        run: python calculate_rule_of_thirds.py --symbol BTC-USDT --interval 4H --days 10
+
+      - name: Commit updated results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html results/latest.md results/last_10_days.md results/history.csv
+          if git diff --cached --quiet; then
+            echo "No result changes to commit."
+          else
+            git commit -m "Update BTC/USDT 4H rule of thirds"
+            git push
+          fi
