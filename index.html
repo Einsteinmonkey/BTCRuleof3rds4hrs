@@ -5,21 +5,271 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BTC/USDT 4H Rule of Thirds</title>
   <style>
-    :root { --bg:#0b0f14; --card:#151a21; --border:#2a3441; --text:#f6f8fb; --muted:#a7b1c2; --accent:#f7931a; }
+    :root {
+      --bg: #0b0f14;
+      --card: #151a21;
+      --card-2: #0f141b;
+      --border: #2a3441;
+      --text: #f6f8fb;
+      --muted: #a7b1c2;
+      --accent: #f7931a;
+      --accent-soft: rgba(247, 147, 26, 0.16);
+    }
     * { box-sizing: border-box; }
-    body { margin:0; min-height:100vh; display:grid; place-items:center; background:radial-gradient(circle at top,#182230 0,#0b0f14 42%); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    .card { width:min(850px,calc(100% - 32px)); background:rgba(21,26,33,.94); border:1px solid var(--border); border-radius:22px; padding:32px; box-shadow:0 24px 80px rgba(0,0,0,.35); }
-    h1 { margin:0 0 18px; font-size:clamp(2.1rem,5vw,4rem); letter-spacing:-.05em; line-height:1; }
-    .box { background:#0f141b; border:1px solid var(--border); border-radius:16px; padding:20px; color:var(--muted); }
-    code { color:#ffd199; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #182230 0, var(--bg) 42%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 42px auto;
+    }
+    .card {
+      background: rgba(21, 26, 33, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    }
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(2.1rem, 5vw, 4.3rem);
+      line-height: 1;
+      margin: 0 0 10px;
+      letter-spacing: -0.05em;
+    }
+    .subtitle, .meta, footer { color: var(--muted); }
+    .badge {
+      border: 1px solid rgba(247,147,26,0.5);
+      background: var(--accent-soft);
+      color: #ffd199;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .box {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .8rem;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-size: clamp(2rem, 5vw, 3.1rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 20px 0 26px;
+    }
+    .level .value { font-size: clamp(1.2rem, 2vw, 1.65rem); }
+    h2 {
+      margin: 34px 0 12px;
+      font-size: clamp(1.2rem, 3vw, 1.75rem);
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-height: 650px;
+      background: var(--card-2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      position: sticky;
+      top: 0;
+      background: #111821;
+      color: var(--muted);
+      font-weight: 750;
+      z-index: 1;
+    }
+    tr:hover td { background: rgba(247,147,26,0.08); }
+    footer {
+      margin-top: 22px;
+      font-size: .92rem;
+    }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1180px); margin: 18px auto; }
+      .card { padding: 18px; border-radius: 18px; }
+      .summary, .levels { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>BTC/USDT Rule of Thirds</h1>
-    <div class="box">
-      No result yet. Run the GitHub Action once and this page will update automatically with the latest 4H result and the last 10 days of 4H candles.
-    </div>
+  <main>
+    <section class="card">
+      <div class="topline">
+        <div>
+          <h1>BTC/USDT Rule of Thirds</h1>
+          <div class="subtitle">Latest fully closed 4-hour candle: 2026-07-07 12:00 UTC</div>
+        </div>
+        <div class="badge">4H · Last 10 days</div>
+      </div>
+
+      <div class="summary">
+        <div class="box">
+          <div class="label">Low</div>
+          <div class="value">62,663.10</div>
+        </div>
+        <div class="box">
+          <div class="label">High</div>
+          <div class="value">64,119.70</div>
+        </div>
+      </div>
+
+      <div class="levels">
+        <div class="box level">
+          <div class="label">Range</div>
+          <div class="value">1,456.60</div>
+        </div>
+        <div class="box level">
+          <div class="label">One Third</div>
+          <div class="value">485.53</div>
+        </div>
+        <div class="box level">
+          <div class="label">Level 1</div>
+          <div class="value">63,148.63</div>
+        </div>
+        <div class="box level">
+          <div class="label">Level 2 / Middle</div>
+          <div class="value">63,634.17</div>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">Level 3 / High Average</div>
+        <div class="value">64,119.70</div>
+      </div>
+
+      <div class="meta" style="margin-top:18px;">
+        Candle close UTC: 2026-07-07T16:00:00Z<br>
+        Last updated UTC: 2026-07-07T19:37:34.217594Z<br>
+        Source: OKX public candles
+      </div>
+
+      <h2>Last 10 days of 4H candles</h2>
+      <div class="subtitle" style="margin-bottom:12px;">Showing 60 fully closed 4-hour candles, newest first.</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candle Start UTC</th>
+              <th>Low</th>
+              <th>High</th>
+              <th>Range</th>
+              <th>One Third</th>
+              <th>Level 1</th>
+              <th>Level 2 / Middle</th>
+              <th>Level 3 / High Avg</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>2026-07-07 12:00 UTC</td><td>$62,663.10</td><td>$64,119.70</td><td>$1,456.60</td><td>$485.53</td><td>$63,148.63</td><td>$63,634.17</td><td>$64,119.70</td></tr>
+<tr><td>2026-07-07 08:00 UTC</td><td>$63,012.30</td><td>$63,472.40</td><td>$460.10</td><td>$153.37</td><td>$63,165.67</td><td>$63,319.03</td><td>$63,472.40</td></tr>
+<tr><td>2026-07-07 04:00 UTC</td><td>$62,800.20</td><td>$63,448.80</td><td>$648.60</td><td>$216.20</td><td>$63,016.40</td><td>$63,232.60</td><td>$63,448.80</td></tr>
+<tr><td>2026-07-07 00:00 UTC</td><td>$63,158.00</td><td>$64,314.20</td><td>$1,156.20</td><td>$385.40</td><td>$63,543.40</td><td>$63,928.80</td><td>$64,314.20</td></tr>
+<tr><td>2026-07-06 20:00 UTC</td><td>$63,594.60</td><td>$64,706.30</td><td>$1,111.70</td><td>$370.57</td><td>$63,965.17</td><td>$64,335.73</td><td>$64,706.30</td></tr>
+<tr><td>2026-07-06 16:00 UTC</td><td>$63,383.30</td><td>$63,980.00</td><td>$596.70</td><td>$198.90</td><td>$63,582.20</td><td>$63,781.10</td><td>$63,980.00</td></tr>
+<tr><td>2026-07-06 12:00 UTC</td><td>$61,318.30</td><td>$63,548.30</td><td>$2,230.00</td><td>$743.33</td><td>$62,061.63</td><td>$62,804.97</td><td>$63,548.30</td></tr>
+<tr><td>2026-07-06 08:00 UTC</td><td>$62,483.40</td><td>$63,250.00</td><td>$766.60</td><td>$255.53</td><td>$62,738.93</td><td>$62,994.47</td><td>$63,250.00</td></tr>
+<tr><td>2026-07-06 04:00 UTC</td><td>$62,891.60</td><td>$63,407.00</td><td>$515.40</td><td>$171.80</td><td>$63,063.40</td><td>$63,235.20</td><td>$63,407.00</td></tr>
+<tr><td>2026-07-06 00:00 UTC</td><td>$63,139.60</td><td>$63,918.90</td><td>$779.30</td><td>$259.77</td><td>$63,399.37</td><td>$63,659.13</td><td>$63,918.90</td></tr>
+<tr><td>2026-07-05 20:00 UTC</td><td>$62,614.90</td><td>$63,999.80</td><td>$1,384.90</td><td>$461.63</td><td>$63,076.53</td><td>$63,538.17</td><td>$63,999.80</td></tr>
+<tr><td>2026-07-05 16:00 UTC</td><td>$62,604.30</td><td>$62,887.80</td><td>$283.50</td><td>$94.50</td><td>$62,698.80</td><td>$62,793.30</td><td>$62,887.80</td></tr>
+<tr><td>2026-07-05 12:00 UTC</td><td>$62,571.80</td><td>$62,942.70</td><td>$370.90</td><td>$123.63</td><td>$62,695.43</td><td>$62,819.07</td><td>$62,942.70</td></tr>
+<tr><td>2026-07-05 08:00 UTC</td><td>$62,444.40</td><td>$63,105.60</td><td>$661.20</td><td>$220.40</td><td>$62,664.80</td><td>$62,885.20</td><td>$63,105.60</td></tr>
+<tr><td>2026-07-05 04:00 UTC</td><td>$62,659.10</td><td>$63,056.00</td><td>$396.90</td><td>$132.30</td><td>$62,791.40</td><td>$62,923.70</td><td>$63,056.00</td></tr>
+<tr><td>2026-07-05 00:00 UTC</td><td>$62,594.00</td><td>$63,143.80</td><td>$549.80</td><td>$183.27</td><td>$62,777.27</td><td>$62,960.53</td><td>$63,143.80</td></tr>
+<tr><td>2026-07-04 20:00 UTC</td><td>$62,935.10</td><td>$63,456.50</td><td>$521.40</td><td>$173.80</td><td>$63,108.90</td><td>$63,282.70</td><td>$63,456.50</td></tr>
+<tr><td>2026-07-04 16:00 UTC</td><td>$62,784.40</td><td>$63,469.30</td><td>$684.90</td><td>$228.30</td><td>$63,012.70</td><td>$63,241.00</td><td>$63,469.30</td></tr>
+<tr><td>2026-07-04 12:00 UTC</td><td>$62,493.60</td><td>$63,090.90</td><td>$597.30</td><td>$199.10</td><td>$62,692.70</td><td>$62,891.80</td><td>$63,090.90</td></tr>
+<tr><td>2026-07-04 08:00 UTC</td><td>$62,425.10</td><td>$62,681.70</td><td>$256.60</td><td>$85.53</td><td>$62,510.63</td><td>$62,596.17</td><td>$62,681.70</td></tr>
+<tr><td>2026-07-04 04:00 UTC</td><td>$62,333.10</td><td>$62,757.80</td><td>$424.70</td><td>$141.57</td><td>$62,474.67</td><td>$62,616.23</td><td>$62,757.80</td></tr>
+<tr><td>2026-07-04 00:00 UTC</td><td>$62,405.00</td><td>$62,954.70</td><td>$549.70</td><td>$183.23</td><td>$62,588.23</td><td>$62,771.47</td><td>$62,954.70</td></tr>
+<tr><td>2026-07-03 20:00 UTC</td><td>$62,190.10</td><td>$62,964.60</td><td>$774.50</td><td>$258.17</td><td>$62,448.27</td><td>$62,706.43</td><td>$62,964.60</td></tr>
+<tr><td>2026-07-03 16:00 UTC</td><td>$61,911.10</td><td>$62,319.10</td><td>$408.00</td><td>$136.00</td><td>$62,047.10</td><td>$62,183.10</td><td>$62,319.10</td></tr>
+<tr><td>2026-07-03 12:00 UTC</td><td>$61,700.00</td><td>$62,407.00</td><td>$707.00</td><td>$235.67</td><td>$61,935.67</td><td>$62,171.33</td><td>$62,407.00</td></tr>
+<tr><td>2026-07-03 08:00 UTC</td><td>$61,516.60</td><td>$62,100.00</td><td>$583.40</td><td>$194.47</td><td>$61,711.07</td><td>$61,905.53</td><td>$62,100.00</td></tr>
+<tr><td>2026-07-03 04:00 UTC</td><td>$61,345.00</td><td>$61,873.90</td><td>$528.90</td><td>$176.30</td><td>$61,521.30</td><td>$61,697.60</td><td>$61,873.90</td></tr>
+<tr><td>2026-07-03 00:00 UTC</td><td>$61,241.00</td><td>$61,739.80</td><td>$498.80</td><td>$166.27</td><td>$61,407.27</td><td>$61,573.53</td><td>$61,739.80</td></tr>
+<tr><td>2026-07-02 20:00 UTC</td><td>$61,341.50</td><td>$61,657.10</td><td>$315.60</td><td>$105.20</td><td>$61,446.70</td><td>$61,551.90</td><td>$61,657.10</td></tr>
+<tr><td>2026-07-02 16:00 UTC</td><td>$61,129.00</td><td>$61,949.90</td><td>$820.90</td><td>$273.63</td><td>$61,402.63</td><td>$61,676.27</td><td>$61,949.90</td></tr>
+<tr><td>2026-07-02 12:00 UTC</td><td>$61,153.20</td><td>$62,209.20</td><td>$1,056.00</td><td>$352.00</td><td>$61,505.20</td><td>$61,857.20</td><td>$62,209.20</td></tr>
+<tr><td>2026-07-02 08:00 UTC</td><td>$60,121.90</td><td>$61,429.50</td><td>$1,307.60</td><td>$435.87</td><td>$60,557.77</td><td>$60,993.63</td><td>$61,429.50</td></tr>
+<tr><td>2026-07-02 04:00 UTC</td><td>$60,095.70</td><td>$61,065.70</td><td>$970.00</td><td>$323.33</td><td>$60,419.03</td><td>$60,742.37</td><td>$61,065.70</td></tr>
+<tr><td>2026-07-02 00:00 UTC</td><td>$59,582.60</td><td>$61,125.30</td><td>$1,542.70</td><td>$514.23</td><td>$60,096.83</td><td>$60,611.07</td><td>$61,125.30</td></tr>
+<tr><td>2026-07-01 20:00 UTC</td><td>$59,872.50</td><td>$61,342.00</td><td>$1,469.50</td><td>$489.83</td><td>$60,362.33</td><td>$60,852.17</td><td>$61,342.00</td></tr>
+<tr><td>2026-07-01 16:00 UTC</td><td>$59,789.60</td><td>$60,357.80</td><td>$568.20</td><td>$189.40</td><td>$59,979.00</td><td>$60,168.40</td><td>$60,357.80</td></tr>
+<tr><td>2026-07-01 12:00 UTC</td><td>$58,320.00</td><td>$60,545.40</td><td>$2,225.40</td><td>$741.80</td><td>$59,061.80</td><td>$59,803.60</td><td>$60,545.40</td></tr>
+<tr><td>2026-07-01 08:00 UTC</td><td>$58,491.10</td><td>$59,100.00</td><td>$608.90</td><td>$202.97</td><td>$58,694.07</td><td>$58,897.03</td><td>$59,100.00</td></tr>
+<tr><td>2026-07-01 04:00 UTC</td><td>$58,533.40</td><td>$59,458.70</td><td>$925.30</td><td>$308.43</td><td>$58,841.83</td><td>$59,150.27</td><td>$59,458.70</td></tr>
+<tr><td>2026-07-01 00:00 UTC</td><td>$57,809.40</td><td>$59,315.50</td><td>$1,506.10</td><td>$502.03</td><td>$58,311.43</td><td>$58,813.47</td><td>$59,315.50</td></tr>
+<tr><td>2026-06-30 20:00 UTC</td><td>$58,505.80</td><td>$58,875.80</td><td>$370.00</td><td>$123.33</td><td>$58,629.13</td><td>$58,752.47</td><td>$58,875.80</td></tr>
+<tr><td>2026-06-30 16:00 UTC</td><td>$58,254.20</td><td>$58,838.20</td><td>$584.00</td><td>$194.67</td><td>$58,448.87</td><td>$58,643.53</td><td>$58,838.20</td></tr>
+<tr><td>2026-06-30 12:00 UTC</td><td>$58,200.00</td><td>$59,283.20</td><td>$1,083.20</td><td>$361.07</td><td>$58,561.07</td><td>$58,922.13</td><td>$59,283.20</td></tr>
+<tr><td>2026-06-30 08:00 UTC</td><td>$59,126.30</td><td>$59,555.90</td><td>$429.60</td><td>$143.20</td><td>$59,269.50</td><td>$59,412.70</td><td>$59,555.90</td></tr>
+<tr><td>2026-06-30 04:00 UTC</td><td>$59,347.60</td><td>$59,711.80</td><td>$364.20</td><td>$121.40</td><td>$59,469.00</td><td>$59,590.40</td><td>$59,711.80</td></tr>
+<tr><td>2026-06-30 00:00 UTC</td><td>$59,593.40</td><td>$60,277.20</td><td>$683.80</td><td>$227.93</td><td>$59,821.33</td><td>$60,049.27</td><td>$60,277.20</td></tr>
+<tr><td>2026-06-29 20:00 UTC</td><td>$60,205.20</td><td>$60,595.20</td><td>$390.00</td><td>$130.00</td><td>$60,335.20</td><td>$60,465.20</td><td>$60,595.20</td></tr>
+<tr><td>2026-06-29 16:00 UTC</td><td>$59,585.30</td><td>$60,688.00</td><td>$1,102.70</td><td>$367.57</td><td>$59,952.87</td><td>$60,320.43</td><td>$60,688.00</td></tr>
+<tr><td>2026-06-29 12:00 UTC</td><td>$59,000.00</td><td>$60,789.40</td><td>$1,789.40</td><td>$596.47</td><td>$59,596.47</td><td>$60,192.93</td><td>$60,789.40</td></tr>
+<tr><td>2026-06-29 08:00 UTC</td><td>$59,739.40</td><td>$60,319.90</td><td>$580.50</td><td>$193.50</td><td>$59,932.90</td><td>$60,126.40</td><td>$60,319.90</td></tr>
+<tr><td>2026-06-29 04:00 UTC</td><td>$59,389.60</td><td>$60,400.00</td><td>$1,010.40</td><td>$336.80</td><td>$59,726.40</td><td>$60,063.20</td><td>$60,400.00</td></tr>
+<tr><td>2026-06-29 00:00 UTC</td><td>$58,896.00</td><td>$60,239.90</td><td>$1,343.90</td><td>$447.97</td><td>$59,343.97</td><td>$59,791.93</td><td>$60,239.90</td></tr>
+<tr><td>2026-06-28 20:00 UTC</td><td>$58,896.20</td><td>$59,913.30</td><td>$1,017.10</td><td>$339.03</td><td>$59,235.23</td><td>$59,574.27</td><td>$59,913.30</td></tr>
+<tr><td>2026-06-28 16:00 UTC</td><td>$59,267.10</td><td>$59,948.90</td><td>$681.80</td><td>$227.27</td><td>$59,494.37</td><td>$59,721.63</td><td>$59,948.90</td></tr>
+<tr><td>2026-06-28 12:00 UTC</td><td>$59,822.60</td><td>$60,454.50</td><td>$631.90</td><td>$210.63</td><td>$60,033.23</td><td>$60,243.87</td><td>$60,454.50</td></tr>
+<tr><td>2026-06-28 08:00 UTC</td><td>$60,068.20</td><td>$60,551.60</td><td>$483.40</td><td>$161.13</td><td>$60,229.33</td><td>$60,390.47</td><td>$60,551.60</td></tr>
+<tr><td>2026-06-28 04:00 UTC</td><td>$59,754.40</td><td>$60,266.60</td><td>$512.20</td><td>$170.73</td><td>$59,925.13</td><td>$60,095.87</td><td>$60,266.60</td></tr>
+<tr><td>2026-06-28 00:00 UTC</td><td>$59,986.10</td><td>$60,342.70</td><td>$356.60</td><td>$118.87</td><td>$60,104.97</td><td>$60,223.83</td><td>$60,342.70</td></tr>
+<tr><td>2026-06-27 20:00 UTC</td><td>$59,857.50</td><td>$60,488.00</td><td>$630.50</td><td>$210.17</td><td>$60,067.67</td><td>$60,277.83</td><td>$60,488.00</td></tr>
+<tr><td>2026-06-27 16:00 UTC</td><td>$60,081.70</td><td>$60,867.80</td><td>$786.10</td><td>$262.03</td><td>$60,343.73</td><td>$60,605.77</td><td>$60,867.80</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer>
+        This page is an automated calculator only. It is not financial advice or a trading recommendation.
+      </footer>
+    </section>
   </main>
 </body>
 </html>
