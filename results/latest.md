@@ -1,16 +1,16 @@
 # BTC-USDT 4H Rule of Thirds
 
-Latest fully closed 4-hour candle: **2026-07-08 00:00 UTC** to **2026-07-08 04:00 UTC**
+Latest fully closed 4-hour candle: **2026-07-08 04:00 UTC** to **2026-07-08 08:00 UTC**
 
 | Result | Price |
 |---|---:|
-| Low | $62,535.70 |
-| High | $63,762.40 |
-| Range | $1,226.70 |
-| One Third | $408.90 |
-| Level 1 | $62,944.60 |
-| Level 2 / Middle | $63,353.50 |
-| Level 3 / High Average | $63,762.40 |
+| Low | $62,467.60 |
+| High | $62,905.60 |
+| Range | $438.00 |
+| One Third | $146.00 |
+| Level 1 | $62,613.60 |
+| Level 2 / Middle | $62,759.60 |
+| Level 3 / High Average | $62,905.60 |
 
-Updated UTC: 2026-07-08T06:38:17.345360Z  
+Updated UTC: 2026-07-08T10:30:21.807073Z  
 Source: OKX public candles
