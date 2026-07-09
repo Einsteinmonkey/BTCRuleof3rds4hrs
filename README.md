@@ -1,15 +1,13 @@
-# BTC/USDT 4H Rule of Thirds
+# BTC/USDT Multi-Timeframe Rule of Thirds
 
-This repo calculates the BTC/USDT Rule of Thirds from fully closed 4-hour candles and publishes a clean GitHub Pages results page.
+This repo calculates BTC/USDT Rule of Thirds levels from fully closed OKX candles and publishes a GitHub Pages results page.
 
-It shows:
+It shows the last 20 fully closed candles for:
 
-- Latest fully closed BTC/USDT 4H candle
-- Last 10 days of 4H candles
-- Rule of Thirds levels for each candle
-- A link button to the GoCharting chart
-
-The GoCharting chart is linked, not embedded, because shared GoCharting chart URLs may be blocked from loading inside GitHub Pages iframes.
+- 4H
+- 1D
+- 1H
+- 15M
 
 ## Formula
 
@@ -23,4 +21,4 @@ level_3 = level_2 + one_third
 
 ## Data source
 
-Rule of Thirds calculations use OKX public BTC-USDT 4H candles. The GoCharting chart link is only for visual reference.
+Rule of Thirds calculations use OKX public BTC-USDT candles. The GoCharting chart link is only for visual reference.
