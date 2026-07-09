@@ -147,9 +147,7 @@ def rule_of_thirds(candle: Candle) -> dict[str, float]:
 
 
 def fmt(value: float) -> str:
-    if value >= 1000:
-        return f"{value:,.2f}"
-    return f"{value:.6f}".rstrip("0").rstrip(".")
+    return f"{value:,.3f}"
 
 
 def fetch_last_20_for_timeframe(timeframe: Timeframe, now: datetime) -> list[Candle]:
