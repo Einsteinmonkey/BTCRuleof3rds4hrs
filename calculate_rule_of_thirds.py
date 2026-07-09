@@ -361,19 +361,16 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
     .chart-section {{
       margin-top: 30px;
     }}
-    .chart-frame-wrap {{
-      overflow: hidden;
+    .chart-card {{
       border: 1px solid var(--border);
       border-radius: 16px;
       background: var(--card-2);
-      min-height: 720px;
+      padding: 22px;
     }}
-    .chart-frame {{
-      display: block;
-      width: 100%;
-      height: 720px;
-      border: 0;
-      background: var(--card-2);
+    .chart-note {{
+      color: var(--muted);
+      margin: 0 0 16px;
+      max-width: 860px;
     }}
     .chart-link {{
       display: inline-flex;
@@ -472,17 +469,10 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
 
       <section class="chart-section">
         <h2>BTC 4H chart</h2>
-        <div class="subtitle" style="margin-bottom:12px;">GoCharting chart provided from your shared chart link.</div>
-        <div class="chart-frame-wrap">
-          <iframe
-            class="chart-frame"
-            src="{html.escape(GOCHARTING_CHART_URL)}"
-            title="BTC 4H GoCharting chart"
-            loading="lazy"
-            allowfullscreen>
-          </iframe>
+        <div class="chart-card">
+          <p class="chart-note">GoCharting shared chart pages may not load inside an embedded iframe on GitHub Pages. Use the button below to open your saved BTC 4H GoCharting chart with your indicators.</p>
+          <a class="chart-link" href="{html.escape(GOCHARTING_CHART_URL)}" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
         </div>
-        <a class="chart-link" href="{html.escape(GOCHARTING_CHART_URL)}" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
       </section>
 
       <footer>
