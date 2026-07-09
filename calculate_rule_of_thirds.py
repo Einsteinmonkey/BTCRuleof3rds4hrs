@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Calculate BTC/USDT 4H Rule of Thirds levels from OKX public candles.
+"""
+BTC/USDT 4H Rule of Thirds calculator.
 
-This script is designed for GitHub Actions + GitHub Pages. It fetches the most
-recent closed 4-hour candles, calculates the rule-of-thirds levels, and writes:
-  - index.html
-  - results/latest.md
-  - results/last_10_days.md
-  - results/history.csv
+Fetches public BTC-USDT 4H candles from OKX, keeps only fully closed candles,
+calculates the Rule of Thirds, and regenerates the GitHub Pages homepage.
 
-No API key is required. This is not financial advice.
+Rule of Thirds:
+  range = high - low
+  one_third = range / 3
+  level_1 = low + one_third
+  level_2 = level_1 + one_third
+  level_3 = level_2 + one_third
 """
 
 from __future__ import annotations
@@ -17,222 +19,218 @@ import argparse
 import csv
 import html
 import json
+import os
 import sys
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from decimal import Decimal, ROUND_HALF_UP, getcontext
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List
 
-getcontext().prec = 28
-
-ROOT = Path(__file__).resolve().parent
-RESULTS_DIR = ROOT / "results"
-LATEST_MD = RESULTS_DIR / "latest.md"
-LAST_10_MD = RESULTS_DIR / "last_10_days.md"
-HISTORY_CSV = RESULTS_DIR / "history.csv"
-INDEX_HTML = ROOT / "index.html"
-
-OKX_CANDLES_URL = "https://www.okx.com/api/v5/market/candles"
-SOURCE_LABEL = "OKX public candles"
-GOCHARTING_CHART_URL = "https://gocharting.com/terminal/chart/_p1jPU7Zg"
+GOCHARTING_URL = "https://gocharting.com/terminal/chart/_p1jPU7Zg"
+OKX_API_URL = "https://www.okx.com/api/v5/market/candles"
+RESULTS_DIR = Path("results")
+INDEX_FILE = Path("index.html")
+LATEST_MD_FILE = RESULTS_DIR / "latest.md"
+LAST_10_MD_FILE = RESULTS_DIR / "last_10.md"
+HISTORY_CSV_FILE = RESULTS_DIR / "history.csv"
 
 
 @dataclass(frozen=True)
-class CandleResult:
-    symbol: str
-    interval: str
-    start: datetime
+class Candle:
+    open_time: datetime
     close_time: datetime
-    open: Decimal
-    high: Decimal
-    low: Decimal
-    close: Decimal
-    range_value: Decimal
-    one_third: Decimal
-    level_1: Decimal
-    level_2_middle: Decimal
-    level_3_high_average: Decimal
+    open: float
+    high: float
+    low: float
+    close: float
+
+    @property
+    def label(self) -> str:
+        return self.open_time.strftime("%Y-%m-%d %H:%M UTC")
 
 
-def parse_decimal(value: str) -> Decimal:
-    return Decimal(value)
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
-def q(value: Decimal, places: str = "0.01") -> Decimal:
-    return value.quantize(Decimal(places), rounding=ROUND_HALF_UP)
-
-
-def money(value: Decimal) -> str:
-    return f"${float(q(value)):,.2f}"
-
-
-def number(value: Decimal) -> str:
-    return f"{float(q(value)):,.2f}"
-
-
-def iso(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def label_dt(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-
-
-def fetch_okx_candles(symbol: str, interval: str, limit: int = 100) -> list[list[str]]:
-    params = urllib.parse.urlencode({"instId": symbol, "bar": interval, "limit": str(limit)})
-    url = f"{OKX_CANDLES_URL}?{params}"
+def fetch_okx_candles(inst_id: str, bar: str, limit: int) -> list[list[str]]:
+    params = urllib.parse.urlencode({"instId": inst_id, "bar": bar, "limit": str(limit)})
+    url = f"{OKX_API_URL}?{params}"
     req = urllib.request.Request(url, headers={"User-Agent": "btc-rule-of-thirds-github-action/1.0"})
-
-    try:
-        with urllib.request.urlopen(req, timeout=30) as response:
-            body = response.read().decode("utf-8")
-    except Exception as exc:  # noqa: BLE001 - keep GitHub Actions logs clear
-        raise RuntimeError(f"Could not fetch candles from OKX: {exc}") from exc
-
-    try:
-        payload = json.loads(body)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"OKX returned invalid JSON: {body[:300]}") from exc
+    with urllib.request.urlopen(req, timeout=30) as response:
+        payload = json.loads(response.read().decode("utf-8"))
 
     if payload.get("code") != "0":
         raise RuntimeError(f"OKX API error: {payload}")
 
     data = payload.get("data") or []
     if not data:
-        raise RuntimeError("OKX returned no candle data.")
-
+        raise RuntimeError("OKX returned no candle data")
     return data
 
 
-def candle_to_result(row: list[str], symbol: str, interval: str) -> CandleResult:
-    # OKX row format:
-    # [ts, open, high, low, close, vol, volCcy, volCcyQuote, confirm]
-    start = datetime.fromtimestamp(int(row[0]) / 1000, tz=timezone.utc)
-    close_time = start + timedelta(hours=4)
-    open_price = parse_decimal(row[1])
-    high = parse_decimal(row[2])
-    low = parse_decimal(row[3])
-    close = parse_decimal(row[4])
+def parse_okx_4h_candles(raw_rows: Iterable[list[str]], now: datetime) -> List[Candle]:
+    candles: list[Candle] = []
 
-    range_value = high - low
-    one_third = range_value / Decimal("3")
-    level_1 = low + one_third
-    level_2_middle = level_1 + one_third
-    level_3_high_average = level_2_middle + one_third
+    for row in raw_rows:
+        # OKX candle format:
+        # [ts, open, high, low, close, vol, volCcy, volCcyQuote, confirm]
+        if len(row) < 5:
+            continue
 
-    return CandleResult(
-        symbol=symbol,
-        interval=interval,
-        start=start,
-        close_time=close_time,
-        open=open_price,
-        high=high,
-        low=low,
-        close=close,
-        range_value=range_value,
-        one_third=one_third,
-        level_1=level_1,
-        level_2_middle=level_2_middle,
-        level_3_high_average=level_3_high_average,
+        open_ms = int(row[0])
+        open_time = datetime.fromtimestamp(open_ms / 1000, tz=timezone.utc)
+        close_time = open_time + timedelta(hours=4)
+        confirm = row[8] if len(row) > 8 else None
+
+        # Keep only fully closed candles. OKX's latest candle can be live/unfinished.
+        if confirm == "0" or close_time > now:
+            continue
+
+        candles.append(
+            Candle(
+                open_time=open_time,
+                close_time=close_time,
+                open=float(row[1]),
+                high=float(row[2]),
+                low=float(row[3]),
+                close=float(row[4]),
+            )
+        )
+
+    candles.sort(key=lambda candle: candle.open_time)
+    return candles
+
+
+def rule_of_thirds(candle: Candle) -> dict[str, float]:
+    price_range = candle.high - candle.low
+    one_third = price_range / 3
+    level_1 = candle.low + one_third
+    level_2 = level_1 + one_third
+    level_3 = level_2 + one_third
+    return {
+        "range": price_range,
+        "one_third": one_third,
+        "level_1": level_1,
+        "level_2": level_2,
+        "level_3": level_3,
+    }
+
+
+def fmt(value: float) -> str:
+    if value >= 1000:
+        return f"{value:,.2f}"
+    return f"{value:.6f}".rstrip("0").rstrip(".")
+
+
+def write_markdown(latest: Candle, candles: list[Candle]) -> None:
+    RESULTS_DIR.mkdir(exist_ok=True)
+    latest_levels = rule_of_thirds(latest)
+
+    LATEST_MD_FILE.write_text(
+        "\n".join(
+            [
+                "# BTC/USDT 4H Rule of Thirds",
+                "",
+                f"Candle open UTC: {latest.open_time.isoformat()}",
+                f"Candle close UTC: {latest.close_time.isoformat()}",
+                f"Low: {fmt(latest.low)}",
+                f"High: {fmt(latest.high)}",
+                f"Range: {fmt(latest_levels['range'])}",
+                f"One Third: {fmt(latest_levels['one_third'])}",
+                f"Level 1: {fmt(latest_levels['level_1'])}",
+                f"Level 2 / Middle: {fmt(latest_levels['level_2'])}",
+                f"Level 3 / High Average: {fmt(latest_levels['level_3'])}",
+                f"Updated UTC: {utc_now().isoformat()}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
     )
 
-
-def get_closed_results(symbol: str, interval: str, days: int) -> list[CandleResult]:
-    # Ten days of 4H candles = 60 closed candles. Fetch extra for safety.
-    candles_needed = max(days * 6, 1)
-    raw_rows = fetch_okx_candles(symbol=symbol, interval=interval, limit=min(max(candles_needed + 20, 80), 100))
-
-    closed_rows: list[list[str]] = []
-    for row in raw_rows:
-        if len(row) < 9:
-            continue
-        confirm = str(row[8])
-        if confirm == "1":
-            closed_rows.append(row)
-
-    if not closed_rows:
-        raise RuntimeError("No fully closed candles were returned by OKX.")
-
-    results = [candle_to_result(row, symbol, interval) for row in closed_rows]
-    results.sort(key=lambda item: item.start)
-    return results[-candles_needed:]
-
-
-def latest_markdown(latest: CandleResult, updated_at: datetime) -> str:
-    return f"""# {latest.symbol} {latest.interval} Rule of Thirds
-
-Latest fully closed 4-hour candle: **{label_dt(latest.start)}** to **{label_dt(latest.close_time)}**
-
-| Result | Price |
-|---|---:|
-| Low | {money(latest.low)} |
-| High | {money(latest.high)} |
-| Range | {money(latest.range_value)} |
-| One Third | {money(latest.one_third)} |
-| Level 1 | {money(latest.level_1)} |
-| Level 2 / Middle | {money(latest.level_2_middle)} |
-| Level 3 / High Average | {money(latest.level_3_high_average)} |
-
-Updated UTC: {iso(updated_at)}  
-Source: {SOURCE_LABEL}
-"""
-
-
-def last_10_markdown(results: list[CandleResult], updated_at: datetime) -> str:
-    rows = [
-        "# Last 10 Days - BTC/USDT 4H Rule of Thirds",
-        "",
-        f"Updated UTC: {iso(updated_at)}",
-        "",
-        "| Candle Start UTC | Low | High | Range | One Third | Level 1 | Level 2 / Middle | Level 3 / High Avg |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
-    ]
-    for item in reversed(results):
+    rows = ["# Last 10 days of BTC/USDT 4H Rule of Thirds", "", "| Candle UTC | Low | High | Range | 1/3 | Level 1 | Level 2 / Middle | Level 3 / High Avg |", "|---|---:|---:|---:|---:|---:|---:|---:|"]
+    for candle in reversed(candles):
+        levels = rule_of_thirds(candle)
         rows.append(
-            "| "
-            + " | ".join(
-                [
-                    label_dt(item.start),
-                    money(item.low),
-                    money(item.high),
-                    money(item.range_value),
-                    money(item.one_third),
-                    money(item.level_1),
-                    money(item.level_2_middle),
-                    money(item.level_3_high_average),
-                ]
-            )
-            + " |"
+            f"| {candle.label} | {fmt(candle.low)} | {fmt(candle.high)} | {fmt(levels['range'])} | {fmt(levels['one_third'])} | {fmt(levels['level_1'])} | {fmt(levels['level_2'])} | {fmt(levels['level_3'])} |"
         )
-    rows.append("")
-    return "\n".join(rows)
+    LAST_10_MD_FILE.write_text("\n".join(rows) + "\n", encoding="utf-8")
 
 
-def render_table_rows(results: Iterable[CandleResult]) -> str:
-    rows = []
-    for item in reversed(list(results)):
+def update_history_csv(candles: list[Candle]) -> None:
+    RESULTS_DIR.mkdir(exist_ok=True)
+    existing: dict[str, dict[str, str]] = {}
+
+    if HISTORY_CSV_FILE.exists():
+        with HISTORY_CSV_FILE.open("r", newline="", encoding="utf-8") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                existing[row["open_time_utc"]] = row
+
+    for candle in candles:
+        levels = rule_of_thirds(candle)
+        existing[candle.open_time.isoformat()] = {
+            "open_time_utc": candle.open_time.isoformat(),
+            "close_time_utc": candle.close_time.isoformat(),
+            "open": f"{candle.open:.10f}",
+            "high": f"{candle.high:.10f}",
+            "low": f"{candle.low:.10f}",
+            "close": f"{candle.close:.10f}",
+            "range": f"{levels['range']:.10f}",
+            "one_third": f"{levels['one_third']:.10f}",
+            "level_1": f"{levels['level_1']:.10f}",
+            "level_2_middle": f"{levels['level_2']:.10f}",
+            "level_3_high_average": f"{levels['level_3']:.10f}",
+            "updated_utc": utc_now().isoformat(),
+        }
+
+    fieldnames = [
+        "open_time_utc",
+        "close_time_utc",
+        "open",
+        "high",
+        "low",
+        "close",
+        "range",
+        "one_third",
+        "level_1",
+        "level_2_middle",
+        "level_3_high_average",
+        "updated_utc",
+    ]
+    ordered_rows = [existing[key] for key in sorted(existing.keys())]
+    with HISTORY_CSV_FILE.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(ordered_rows)
+
+
+def render_table_rows(candles: list[Candle]) -> str:
+    rows: list[str] = []
+    for candle in reversed(candles):
+        levels = rule_of_thirds(candle)
         rows.append(
             "<tr>"
-            f"<td>{html.escape(label_dt(item.start))}</td>"
-            f"<td>{html.escape(money(item.low))}</td>"
-            f"<td>{html.escape(money(item.high))}</td>"
-            f"<td>{html.escape(money(item.range_value))}</td>"
-            f"<td>{html.escape(money(item.one_third))}</td>"
-            f"<td>{html.escape(money(item.level_1))}</td>"
-            f"<td>{html.escape(money(item.level_2_middle))}</td>"
-            f"<td>{html.escape(money(item.level_3_high_average))}</td>"
+            f"<td>{html.escape(candle.label)}</td>"
+            f"<td>{fmt(candle.low)}</td>"
+            f"<td>{fmt(candle.high)}</td>"
+            f"<td>{fmt(levels['range'])}</td>"
+            f"<td>{fmt(levels['one_third'])}</td>"
+            f"<td>{fmt(levels['level_1'])}</td>"
+            f"<td>{fmt(levels['level_2'])}</td>"
+            f"<td>{fmt(levels['level_3'])}</td>"
             "</tr>"
         )
     return "\n".join(rows)
 
 
-def render_index(results: list[CandleResult], updated_at: datetime, days: int) -> str:
-    latest = results[-1]
-    table_rows = render_table_rows(results)
-    candle_count = len(results)
+def render_index(latest: Candle, candles: list[Candle]) -> str:
+    levels = rule_of_thirds(latest)
+    updated = utc_now().strftime("%Y-%m-%d %H:%M:%S UTC")
+    table_rows = render_table_rows(candles)
+    chart_url = html.escape(GOCHARTING_URL, quote=True)
 
     return f"""<!doctype html>
 <html lang="en">
@@ -242,223 +240,94 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
   <title>BTC/USDT 4H Rule of Thirds</title>
   <style>
     :root {{
-      --bg: #0b0f14;
-      --card: #151a21;
-      --card-2: #0f141b;
-      --border: #2a3441;
-      --text: #f6f8fb;
-      --muted: #a7b1c2;
-      --accent: #f7931a;
-      --accent-soft: rgba(247, 147, 26, 0.16);
+      color-scheme: dark;
+      --bg: #0b1017;
+      --card: #151c25;
+      --card-2: #0f151d;
+      --text: #f4f7fb;
+      --muted: #a9bad1;
+      --line: #2d3948;
+      --accent: #f7b955;
     }}
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #182230 0, var(--bg) 42%);
-      color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.45;
+      background: radial-gradient(circle at top, #172234 0%, var(--bg) 48%, #070b10 100%);
+      color: var(--text);
     }}
-    main {{
-      width: min(1180px, calc(100% - 32px));
-      margin: 42px auto;
-    }}
+    main {{ max-width: 1120px; margin: 0 auto; padding: 48px 24px 72px; }}
+    h1 {{ font-size: clamp(42px, 7vw, 76px); margin: 0 0 22px; line-height: .95; letter-spacing: -0.06em; }}
+    h2 {{ margin: 0 0 16px; font-size: 24px; }}
     .card {{
-      background: rgba(21, 26, 33, 0.94);
-      border: 1px solid var(--border);
+      background: rgba(21, 28, 37, 0.92);
+      border: 1px solid var(--line);
       border-radius: 22px;
       padding: 28px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+      box-shadow: 0 22px 60px rgba(0,0,0,.25);
+      margin-bottom: 28px;
     }}
-    .topline {{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }}
-    h1 {{
-      font-size: clamp(2.1rem, 5vw, 4.3rem);
-      line-height: 1;
-      margin: 0 0 10px;
-      letter-spacing: -0.05em;
-    }}
-    .subtitle, .meta, footer {{ color: var(--muted); }}
-    .badge {{
-      border: 1px solid rgba(247,147,26,0.5);
-      background: var(--accent-soft);
-      color: #ffd199;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 700;
-      white-space: nowrap;
-    }}
-    .summary {{
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin: 24px 0;
-    }}
-    .box {{
-      background: var(--card-2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-    }}
-    .label {{
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-size: .8rem;
-      margin-bottom: 4px;
-    }}
-    .value {{
-      font-size: clamp(2rem, 5vw, 3.1rem);
-      font-weight: 850;
-      letter-spacing: -0.04em;
-    }}
-    .levels {{
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin: 20px 0 26px;
-    }}
-    .level .value {{ font-size: clamp(1.2rem, 2vw, 1.65rem); }}
-    h2 {{
-      margin: 34px 0 12px;
-      font-size: clamp(1.2rem, 3vw, 1.75rem);
-    }}
-    .table-wrap {{
-      overflow: auto;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      max-height: 650px;
-      background: var(--card-2);
-    }}
-    table {{
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 980px;
-    }}
-    th, td {{
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      text-align: right;
-      white-space: nowrap;
-    }}
-    th:first-child, td:first-child {{ text-align: left; }}
-    th {{
-      position: sticky;
-      top: 0;
-      background: #111821;
-      color: var(--muted);
-      font-weight: 750;
-      z-index: 1;
-    }}
-    tr:hover td {{ background: rgba(247,147,26,0.08); }}
-    .chart-section {{
-      margin-top: 30px;
-    }}
-    .chart-card {{
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--card-2);
-      padding: 22px;
-    }}
-    .chart-note {{
-      color: var(--muted);
-      margin: 0 0 16px;
-      max-width: 860px;
-    }}
-    .chart-link {{
+    .subtle {{ color: var(--muted); font-size: 16px; margin: 0 0 24px; }}
+    .grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 20px 0; }}
+    .metric {{ background: var(--card-2); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }}
+    .metric .label {{ color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }}
+    .metric .value {{ font-size: clamp(32px, 5vw, 48px); font-weight: 800; margin-top: 8px; }}
+    .result-list {{ width: 100%; border-collapse: collapse; margin-top: 18px; }}
+    .result-list th, .result-list td {{ border-bottom: 1px solid var(--line); padding: 14px 10px; text-align: right; }}
+    .result-list th:first-child, .result-list td:first-child {{ text-align: left; }}
+    .table-wrap {{ overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; }}
+    table.history {{ min-width: 900px; width: 100%; border-collapse: collapse; }}
+    table.history th, table.history td {{ padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }}
+    table.history th:first-child, table.history td:first-child {{ text-align: left; }}
+    table.history thead th {{ color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; background: #101822; }}
+    .button-card {{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }}
+    .chart-button {{
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-      color: #ffd199;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 18px;
+      background: var(--accent);
+      color: #111;
+      border-radius: 999px;
       text-decoration: none;
-      font-weight: 750;
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(247,185,85,.22);
     }}
-    .chart-link:hover {{ text-decoration: underline; }}
-    footer {{
-      margin-top: 22px;
-      font-size: .92rem;
-    }}
-    @media (max-width: 760px) {{
-      main {{ width: min(100% - 20px, 1180px); margin: 18px auto; }}
-      .card {{ padding: 18px; border-radius: 18px; }}
-      .summary, .levels {{ grid-template-columns: 1fr; }}
-    }}
+    .footnote {{ color: var(--muted); font-size: 14px; margin-top: 18px; }}
+    @media (max-width: 720px) {{ .grid {{ grid-template-columns: 1fr; }} .card {{ padding: 20px; }} }}
   </style>
 </head>
 <body>
   <main>
+    <h1>BTC/USDT Rule of Thirds</h1>
+
     <section class="card">
-      <div class="topline">
-        <div>
-          <h1>BTC/USDT Rule of Thirds</h1>
-          <div class="subtitle">Latest fully closed 4-hour candle: {html.escape(label_dt(latest.start))}</div>
-        </div>
-        <div class="badge">4H · Last {days} days</div>
+      <p class="subtle">Latest fully closed 4-hour candle · {html.escape(latest.label)}</p>
+      <div class="grid">
+        <div class="metric"><div class="label">Low</div><div class="value">{fmt(latest.low)}</div></div>
+        <div class="metric"><div class="label">High</div><div class="value">{fmt(latest.high)}</div></div>
       </div>
+      <table class="result-list">
+        <thead><tr><th>Result</th><th>Price</th></tr></thead>
+        <tbody>
+          <tr><td>Range</td><td>{fmt(levels['range'])}</td></tr>
+          <tr><td>One Third</td><td>{fmt(levels['one_third'])}</td></tr>
+          <tr><td>Level 1</td><td>{fmt(levels['level_1'])}</td></tr>
+          <tr><td>Level 2 / Middle</td><td>{fmt(levels['level_2'])}</td></tr>
+          <tr><td>Level 3 / High Average</td><td>{fmt(levels['level_3'])}</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote">Candle close UTC: {html.escape(latest.close_time.isoformat())}<br>Last updated UTC: {html.escape(updated)}<br>Rule data source: OKX public BTC-USDT 4H candles.</p>
+    </section>
 
-      <div class="summary">
-        <div class="box">
-          <div class="label">Low</div>
-          <div class="value">{html.escape(number(latest.low))}</div>
-        </div>
-        <div class="box">
-          <div class="label">High</div>
-          <div class="value">{html.escape(number(latest.high))}</div>
-        </div>
-      </div>
-
-      <div class="levels">
-        <div class="box level">
-          <div class="label">Range</div>
-          <div class="value">{html.escape(number(latest.range_value))}</div>
-        </div>
-        <div class="box level">
-          <div class="label">One Third</div>
-          <div class="value">{html.escape(number(latest.one_third))}</div>
-        </div>
-        <div class="box level">
-          <div class="label">Level 1</div>
-          <div class="value">{html.escape(number(latest.level_1))}</div>
-        </div>
-        <div class="box level">
-          <div class="label">Level 2 / Middle</div>
-          <div class="value">{html.escape(number(latest.level_2_middle))}</div>
-        </div>
-      </div>
-
-      <div class="box">
-        <div class="label">Level 3 / High Average</div>
-        <div class="value">{html.escape(number(latest.level_3_high_average))}</div>
-      </div>
-
-      <div class="meta" style="margin-top:18px;">
-        Candle close UTC: {html.escape(iso(latest.close_time))}<br>
-        Last updated UTC: {html.escape(iso(updated_at))}<br>
-        Source: {html.escape(SOURCE_LABEL)}
-      </div>
-
-      <h2>Last {days} days of 4H candles</h2>
-      <div class="subtitle" style="margin-bottom:12px;">Showing {candle_count} fully closed 4-hour candles, newest first.</div>
+    <section class="card">
+      <h2>Last 10 days of 4H candles</h2>
       <div class="table-wrap">
-        <table>
+        <table class="history">
           <thead>
             <tr>
-              <th>Candle Start UTC</th>
-              <th>Low</th>
-              <th>High</th>
-              <th>Range</th>
-              <th>One Third</th>
-              <th>Level 1</th>
-              <th>Level 2 / Middle</th>
-              <th>Level 3 / High Avg</th>
+              <th>Candle UTC</th><th>Low</th><th>High</th><th>Range</th><th>1/3</th><th>Level 1</th><th>Level 2 / Middle</th><th>Level 3 / High Avg</th>
             </tr>
           </thead>
           <tbody>
@@ -466,18 +335,14 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
           </tbody>
         </table>
       </div>
+    </section>
 
-      <section class="chart-section">
-        <h2>BTC 4H chart</h2>
-        <div class="chart-card">
-          <p class="chart-note">GoCharting shared chart pages may not load inside an embedded iframe on GitHub Pages. Use the button below to open your saved BTC 4H GoCharting chart with your indicators.</p>
-          <a class="chart-link" href="{html.escape(GOCHARTING_CHART_URL)}" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
-        </div>
-      </section>
-
-      <footer>
-        This page is an automated calculator only. It is not financial advice or a trading recommendation.
-      </footer>
+    <section class="card button-card">
+      <div>
+        <h2>BTC chart</h2>
+        <p class="subtle" style="margin-bottom:0;">GoCharting blocks this shared chart from loading directly inside GitHub Pages, so use the button to open it.</p>
+      </div>
+      <a class="chart-button" href="{chart_url}" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
     </section>
   </main>
 </body>
@@ -485,86 +350,73 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
 """
 
 
-def append_history(latest: CandleResult, updated_at: datetime) -> None:
-    RESULTS_DIR.mkdir(exist_ok=True)
-    fieldnames = [
-        "run_updated_utc",
-        "candle_start_utc",
-        "candle_close_utc",
-        "symbol",
-        "interval",
-        "open",
-        "low",
-        "high",
-        "close",
-        "range",
-        "one_third",
-        "level_1",
-        "level_2_middle",
-        "level_3_high_average",
-        "source",
-    ]
-
-    existing: dict[tuple[str, str, str], dict[str, str]] = {}
-    if HISTORY_CSV.exists():
-        with HISTORY_CSV.open("r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                key = (row.get("symbol", ""), row.get("interval", ""), row.get("candle_start_utc", ""))
-                existing[key] = row
-
-    row = {
-        "run_updated_utc": iso(updated_at),
-        "candle_start_utc": iso(latest.start),
-        "candle_close_utc": iso(latest.close_time),
-        "symbol": latest.symbol,
-        "interval": latest.interval,
-        "open": str(q(latest.open)),
-        "low": str(q(latest.low)),
-        "high": str(q(latest.high)),
-        "close": str(q(latest.close)),
-        "range": str(q(latest.range_value)),
-        "one_third": str(q(latest.one_third)),
-        "level_1": str(q(latest.level_1)),
-        "level_2_middle": str(q(latest.level_2_middle)),
-        "level_3_high_average": str(q(latest.level_3_high_average)),
-        "source": SOURCE_LABEL,
-    }
-    existing[(latest.symbol, latest.interval, iso(latest.start))] = row
-
-    rows = sorted(existing.values(), key=lambda r: r.get("candle_start_utc", ""))
-    with HISTORY_CSV.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+def write_placeholder_index() -> None:
+    chart_url = html.escape(GOCHARTING_URL, quote=True)
+    INDEX_FILE.write_text(
+        f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTC/USDT 4H Rule of Thirds</title>
+  <style>
+    :root {{ color-scheme: dark; --bg:#0b1017; --card:#151c25; --text:#f4f7fb; --muted:#b5c3d6; --line:#2d3948; --accent:#f7b955; }}
+    body {{ margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); }}
+    main {{ max-width:1020px; margin:0 auto; padding:48px 24px; }}
+    h1 {{ font-size:clamp(44px,7vw,76px); margin:0 0 24px; letter-spacing:-.06em; }}
+    .card {{ background:var(--card); border:1px solid var(--line); border-radius:20px; padding:24px; margin-bottom:24px; }}
+    p {{ color:var(--muted); font-size:17px; line-height:1.55; }}
+    a.button {{ display:inline-flex; padding:13px 18px; border-radius:999px; background:var(--accent); color:#111; text-decoration:none; font-weight:800; }}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>BTC/USDT Rule of Thirds</h1>
+    <section class="card">
+      <p>No result yet. Run the GitHub Action once and this page will update automatically with the latest 4H result and the last 10 days of 4H candles.</p>
+    </section>
+    <section class="card">
+      <p>GoCharting chart opens in a new tab because the shared chart cannot be embedded directly on GitHub Pages.</p>
+      <a class="button" href="{chart_url}" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
+    </section>
+  </main>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="BTC/USDT 4H Rule of Thirds calculator")
-    parser.add_argument("--symbol", default="BTC-USDT", help="OKX instrument ID, e.g. BTC-USDT")
-    parser.add_argument("--interval", default="4H", help="OKX candle interval, e.g. 4H")
-    parser.add_argument("--days", type=int, default=10, help="Number of 24-hour days to display")
+    parser = argparse.ArgumentParser(description="Calculate BTC/USDT 4H Rule of Thirds")
+    parser.add_argument("--symbol", default="BTC-USDT", help="OKX instrument ID, default BTC-USDT")
+    parser.add_argument("--interval", default="4H", help="OKX candle interval, default 4H")
+    parser.add_argument("--days", type=int, default=10, help="Number of days to show, default 10")
     args = parser.parse_args()
 
-    updated_at = datetime.now(timezone.utc)
-    results = get_closed_results(symbol=args.symbol, interval=args.interval, days=args.days)
-    latest = results[-1]
+    periods_needed = args.days * 6  # six 4H candles per day for crypto
+    fetch_limit = min(max(periods_needed + 10, 80), 300)
 
-    RESULTS_DIR.mkdir(exist_ok=True)
-    LATEST_MD.write_text(latest_markdown(latest, updated_at), encoding="utf-8")
-    LAST_10_MD.write_text(last_10_markdown(results, updated_at), encoding="utf-8")
-    INDEX_HTML.write_text(render_index(results, updated_at, args.days), encoding="utf-8")
-    append_history(latest, updated_at)
+    try:
+        now = utc_now()
+        raw = fetch_okx_candles(args.symbol, args.interval, fetch_limit)
+        closed = parse_okx_4h_candles(raw, now)
+        if len(closed) < periods_needed:
+            raise RuntimeError(f"Only found {len(closed)} closed candles, need {periods_needed}")
 
-    print(f"Updated {INDEX_HTML.relative_to(ROOT)}")
-    print(f"Latest candle: {label_dt(latest.start)} to {label_dt(latest.close_time)}")
-    print(f"Low={latest.low} High={latest.high} Level1={latest.level_1} Level2={latest.level_2_middle}")
-    return 0
+        candles = closed[-periods_needed:]
+        latest = candles[-1]
+
+        write_markdown(latest, candles)
+        update_history_csv(candles)
+        INDEX_FILE.write_text(render_index(latest, candles), encoding="utf-8")
+
+        print(f"Updated BTC/USDT Rule of Thirds for {latest.label}")
+        return 0
+    except Exception as exc:  # noqa: BLE001
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    try:
-        raise SystemExit(main())
-    except Exception as exc:  # noqa: BLE001 - print a clear GitHub Actions error
-        print(f"ERROR: {exc}", file=sys.stderr)
-        raise SystemExit(1)
+    raise SystemExit(main())
