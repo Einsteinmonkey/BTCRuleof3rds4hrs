@@ -16,9 +16,11 @@ The GitHub Pages homepage shows only the results:
 
 - Latest fully closed 4H candle
 - Last 10 days of fully closed 4H candles
-- No chart
+- Embedded GoCharting chart from `https://gocharting.com/terminal/chart/_p1jPU7Zg`
 
-Data source: OKX public candlesticks for `BTC-USDT` with `bar=4H`.
+Rule-of-Thirds data source: OKX public candlesticks for `BTC-USDT` with `bar=4H`.
+
+Chart source: GoCharting shared chart link: `https://gocharting.com/terminal/chart/_p1jPU7Zg`.
 
 ## Run manually
 
