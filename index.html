@@ -3,101 +3,198 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BTC/USDT 4H Rule of Thirds</title>
+  <title>BTC/USDT Multi-Timeframe Rule of Thirds</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0b1017;
-      --card: #151c25;
-      --card-2: #0f151d;
-      --text: #f4f7fb;
-      --muted: #a9bad1;
-      --line: #2d3948;
-      --accent: #f7b955;
+      --bg: #0b1020;
+      --card: #121a2f;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --line: #23304d;
+      --accent: #f59e0b;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #172234 0%, var(--bg) 48%, #070b10 100%);
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
       color: var(--text);
+      line-height: 1.5;
     }
-    main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 72px; }
-    h1 { font-size: clamp(42px, 7vw, 76px); margin: 0 0 22px; line-height: .95; letter-spacing: -0.06em; }
-    h2 { margin: 0 0 16px; font-size: 24px; }
-    .card {
-      background: rgba(21, 28, 37, 0.92);
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    p { margin: 0 0 16px; }
+    .hero {
+      background: linear-gradient(135deg, #111827, #172554);
       border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 28px;
-      box-shadow: 0 22px 60px rgba(0,0,0,.25);
-      margin-bottom: 28px;
+      border-radius: 18px;
+      padding: 26px;
+      margin-bottom: 22px;
     }
-    .subtle { color: var(--muted); font-size: 16px; margin: 0 0 24px; }
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 20px 0; }
-    .metric { background: var(--card-2); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
-    .metric .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
-    .metric .value { font-size: clamp(32px, 5vw, 48px); font-weight: 800; margin-top: 8px; }
-    .result-list { width: 100%; border-collapse: collapse; margin-top: 18px; }
-    .result-list th, .result-list td { border-bottom: 1px solid var(--line); padding: 14px 10px; text-align: right; }
-    .result-list th:first-child, .result-list td:first-child { text-align: left; }
-    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; }
-    table.history { min-width: 900px; width: 100%; border-collapse: collapse; }
-    table.history th, table.history td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
-    table.history th:first-child, table.history td:first-child { text-align: left; }
-    table.history thead th { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; background: #101822; }
-    .button-card { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
-    .chart-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      padding: 12px 18px;
+    .hero p, .small { color: var(--muted); }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .summary-card, .table-section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .summary-card h2 { color: var(--accent); }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .metrics div {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .metrics span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .metrics strong {
+      display: block;
+      font-size: 16px;
+      margin-top: 2px;
+    }
+    .table-section { margin-top: 18px; }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-weight: 700; }
+    a.button {
+      display: inline-block;
       background: var(--accent);
-      color: #111;
-      border-radius: 999px;
+      color: #111827;
       text-decoration: none;
-      font-weight: 800;
-      box-shadow: 0 10px 30px rgba(247,185,85,.22);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 999px;
+      margin-top: 8px;
     }
-    .footnote { color: var(--muted); font-size: 14px; margin-top: 18px; }
-    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } .card { padding: 20px; } }
   </style>
 </head>
 <body>
   <main>
-    <h1>BTC/USDT Rule of Thirds</h1>
-
-    <section class="card">
-      <p class="subtle">Latest fully closed 4-hour candle · 2026-07-09 08:00 UTC</p>
-      <div class="grid">
-        <div class="metric"><div class="label">Low</div><div class="value">62,615.80</div></div>
-        <div class="metric"><div class="label">High</div><div class="value">63,090.90</div></div>
-      </div>
-      <table class="result-list">
-        <thead><tr><th>Result</th><th>Price</th></tr></thead>
-        <tbody>
-          <tr><td>Range</td><td>475.1</td></tr>
-          <tr><td>One Third</td><td>158.366667</td></tr>
-          <tr><td>Level 1</td><td>62,774.17</td></tr>
-          <tr><td>Level 2 / Middle</td><td>62,932.53</td></tr>
-          <tr><td>Level 3 / High Average</td><td>63,090.90</td></tr>
-        </tbody>
-      </table>
-      <p class="footnote">Candle close UTC: 2026-07-09T12:00:00+00:00<br>Last updated UTC: 2026-07-09 15:34:59 UTC<br>Rule data source: OKX public BTC-USDT 4H candles.</p>
+    <section class="hero">
+      <h1>BTC/USDT Rule of Thirds</h1>
+      <p>Last 20 fully closed candles for 4H, 1D, 1H, and 15M.</p>
+      <p class="small">Last updated UTC: 2026-07-09 16:26:05 UTC · Data source: OKX public BTC-USDT candles.</p>
+      <a class="button" href="https://gocharting.com/terminal/chart/_p1jPU7Zg" target="_blank" rel="noopener">Open chart in GoCharting →</a>
     </section>
 
-    <section class="card">
-      <h2>Last 10 days of 4H candles</h2>
-      <div class="table-wrap">
-        <table class="history">
-          <thead>
-            <tr>
-              <th>Candle UTC</th><th>Low</th><th>High</th><th>Range</th><th>1/3</th><th>Level 1</th><th>Level 2 / Middle</th><th>Level 3 / High Avg</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>2026-07-09 08:00 UTC</td><td>62,615.80</td><td>63,090.90</td><td>475.1</td><td>158.366667</td><td>62,774.17</td><td>62,932.53</td><td>63,090.90</td></tr>
+    <section class="summary-grid">
+      
+      <article class="summary-card">
+        <h2>4H</h2>
+        <p>Latest fully closed candle · 2026-07-09 12:00 UTC</p>
+        <div class="metrics">
+          <div><span>Low</span><strong>62,462.10</strong></div>
+          <div><span>High</span><strong>63,254.70</strong></div>
+          <div><span>Range</span><strong>792.6</strong></div>
+          <div><span>1/3</span><strong>264.2</strong></div>
+          <div><span>Level 1</span><strong>62,726.30</strong></div>
+          <div><span>Level 2 / Middle</span><strong>62,990.50</strong></div>
+          <div><span>Level 3 / High Avg</span><strong>63,254.70</strong></div>
+        </div>
+        <p class="small">Candle close UTC: 2026-07-09T16:00:00+00:00</p>
+      </article>
+    
+
+      <article class="summary-card">
+        <h2>1D</h2>
+        <p>Latest fully closed candle · 2026-07-08 00:00 UTC</p>
+        <div class="metrics">
+          <div><span>Low</span><strong>61,548.40</strong></div>
+          <div><span>High</span><strong>63,762.40</strong></div>
+          <div><span>Range</span><strong>2,214.00</strong></div>
+          <div><span>1/3</span><strong>738</strong></div>
+          <div><span>Level 1</span><strong>62,286.40</strong></div>
+          <div><span>Level 2 / Middle</span><strong>63,024.40</strong></div>
+          <div><span>Level 3 / High Avg</span><strong>63,762.40</strong></div>
+        </div>
+        <p class="small">Candle close UTC: 2026-07-09T00:00:00+00:00</p>
+      </article>
+    
+
+      <article class="summary-card">
+        <h2>1H</h2>
+        <p>Latest fully closed candle · 2026-07-09 15:00 UTC</p>
+        <div class="metrics">
+          <div><span>Low</span><strong>62,812.50</strong></div>
+          <div><span>High</span><strong>63,254.70</strong></div>
+          <div><span>Range</span><strong>442.2</strong></div>
+          <div><span>1/3</span><strong>147.4</strong></div>
+          <div><span>Level 1</span><strong>62,959.90</strong></div>
+          <div><span>Level 2 / Middle</span><strong>63,107.30</strong></div>
+          <div><span>Level 3 / High Avg</span><strong>63,254.70</strong></div>
+        </div>
+        <p class="small">Candle close UTC: 2026-07-09T16:00:00+00:00</p>
+      </article>
+    
+
+      <article class="summary-card">
+        <h2>15M</h2>
+        <p>Latest fully closed candle · 2026-07-09 16:00 UTC</p>
+        <div class="metrics">
+          <div><span>Low</span><strong>62,822.30</strong></div>
+          <div><span>High</span><strong>62,994.90</strong></div>
+          <div><span>Range</span><strong>172.6</strong></div>
+          <div><span>1/3</span><strong>57.533333</strong></div>
+          <div><span>Level 1</span><strong>62,879.83</strong></div>
+          <div><span>Level 2 / Middle</span><strong>62,937.37</strong></div>
+          <div><span>Level 3 / High Avg</span><strong>62,994.90</strong></div>
+        </div>
+        <p class="small">Candle close UTC: 2026-07-09T16:15:00+00:00</p>
+      </article>
+    
+    </section>
+
+    
+      <section class="table-section" id="4h">
+        <h2>Last 20 4-hour candles</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candle UTC</th>
+                <th>Low</th>
+                <th>High</th>
+                <th>Range</th>
+                <th>1/3</th>
+                <th>Level 1</th>
+                <th>Level 2 / Middle</th>
+                <th>Level 3 / High Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>2026-07-09 12:00 UTC</td><td>62,462.10</td><td>63,254.70</td><td>792.6</td><td>264.2</td><td>62,726.30</td><td>62,990.50</td><td>63,254.70</td></tr>
+<tr><td>2026-07-09 08:00 UTC</td><td>62,615.80</td><td>63,090.90</td><td>475.1</td><td>158.366667</td><td>62,774.17</td><td>62,932.53</td><td>63,090.90</td></tr>
 <tr><td>2026-07-09 04:00 UTC</td><td>61,954.10</td><td>63,284.80</td><td>1,330.70</td><td>443.566667</td><td>62,397.67</td><td>62,841.23</td><td>63,284.80</td></tr>
 <tr><td>2026-07-09 00:00 UTC</td><td>61,697.00</td><td>62,645.20</td><td>948.2</td><td>316.066667</td><td>62,013.07</td><td>62,329.13</td><td>62,645.20</td></tr>
 <tr><td>2026-07-08 20:00 UTC</td><td>61,960.70</td><td>62,356.40</td><td>395.7</td><td>131.9</td><td>62,092.60</td><td>62,224.50</td><td>62,356.40</td></tr>
@@ -116,59 +213,140 @@
 <tr><td>2026-07-06 16:00 UTC</td><td>63,383.30</td><td>63,980.00</td><td>596.7</td><td>198.9</td><td>63,582.20</td><td>63,781.10</td><td>63,980.00</td></tr>
 <tr><td>2026-07-06 12:00 UTC</td><td>61,318.30</td><td>63,548.30</td><td>2,230.00</td><td>743.333333</td><td>62,061.63</td><td>62,804.97</td><td>63,548.30</td></tr>
 <tr><td>2026-07-06 08:00 UTC</td><td>62,483.40</td><td>63,250.00</td><td>766.6</td><td>255.533333</td><td>62,738.93</td><td>62,994.47</td><td>63,250.00</td></tr>
-<tr><td>2026-07-06 04:00 UTC</td><td>62,891.60</td><td>63,407.00</td><td>515.4</td><td>171.8</td><td>63,063.40</td><td>63,235.20</td><td>63,407.00</td></tr>
-<tr><td>2026-07-06 00:00 UTC</td><td>63,139.60</td><td>63,918.90</td><td>779.3</td><td>259.766667</td><td>63,399.37</td><td>63,659.13</td><td>63,918.90</td></tr>
-<tr><td>2026-07-05 20:00 UTC</td><td>62,614.90</td><td>63,999.80</td><td>1,384.90</td><td>461.633333</td><td>63,076.53</td><td>63,538.17</td><td>63,999.80</td></tr>
-<tr><td>2026-07-05 16:00 UTC</td><td>62,604.30</td><td>62,887.80</td><td>283.5</td><td>94.5</td><td>62,698.80</td><td>62,793.30</td><td>62,887.80</td></tr>
-<tr><td>2026-07-05 12:00 UTC</td><td>62,571.80</td><td>62,942.70</td><td>370.9</td><td>123.633333</td><td>62,695.43</td><td>62,819.07</td><td>62,942.70</td></tr>
-<tr><td>2026-07-05 08:00 UTC</td><td>62,444.40</td><td>63,105.60</td><td>661.2</td><td>220.4</td><td>62,664.80</td><td>62,885.20</td><td>63,105.60</td></tr>
-<tr><td>2026-07-05 04:00 UTC</td><td>62,659.10</td><td>63,056.00</td><td>396.9</td><td>132.3</td><td>62,791.40</td><td>62,923.70</td><td>63,056.00</td></tr>
-<tr><td>2026-07-05 00:00 UTC</td><td>62,594.00</td><td>63,143.80</td><td>549.8</td><td>183.266667</td><td>62,777.27</td><td>62,960.53</td><td>63,143.80</td></tr>
-<tr><td>2026-07-04 20:00 UTC</td><td>62,935.10</td><td>63,456.50</td><td>521.4</td><td>173.8</td><td>63,108.90</td><td>63,282.70</td><td>63,456.50</td></tr>
-<tr><td>2026-07-04 16:00 UTC</td><td>62,784.40</td><td>63,469.30</td><td>684.9</td><td>228.3</td><td>63,012.70</td><td>63,241.00</td><td>63,469.30</td></tr>
-<tr><td>2026-07-04 12:00 UTC</td><td>62,493.60</td><td>63,090.90</td><td>597.3</td><td>199.1</td><td>62,692.70</td><td>62,891.80</td><td>63,090.90</td></tr>
-<tr><td>2026-07-04 08:00 UTC</td><td>62,425.10</td><td>62,681.70</td><td>256.6</td><td>85.533333</td><td>62,510.63</td><td>62,596.17</td><td>62,681.70</td></tr>
-<tr><td>2026-07-04 04:00 UTC</td><td>62,333.10</td><td>62,757.80</td><td>424.7</td><td>141.566667</td><td>62,474.67</td><td>62,616.23</td><td>62,757.80</td></tr>
-<tr><td>2026-07-04 00:00 UTC</td><td>62,405.00</td><td>62,954.70</td><td>549.7</td><td>183.233333</td><td>62,588.23</td><td>62,771.47</td><td>62,954.70</td></tr>
-<tr><td>2026-07-03 20:00 UTC</td><td>62,190.10</td><td>62,964.60</td><td>774.5</td><td>258.166667</td><td>62,448.27</td><td>62,706.43</td><td>62,964.60</td></tr>
-<tr><td>2026-07-03 16:00 UTC</td><td>61,911.10</td><td>62,319.10</td><td>408</td><td>136</td><td>62,047.10</td><td>62,183.10</td><td>62,319.10</td></tr>
-<tr><td>2026-07-03 12:00 UTC</td><td>61,700.00</td><td>62,407.00</td><td>707</td><td>235.666667</td><td>61,935.67</td><td>62,171.33</td><td>62,407.00</td></tr>
-<tr><td>2026-07-03 08:00 UTC</td><td>61,516.60</td><td>62,100.00</td><td>583.4</td><td>194.466667</td><td>61,711.07</td><td>61,905.53</td><td>62,100.00</td></tr>
-<tr><td>2026-07-03 04:00 UTC</td><td>61,345.00</td><td>61,873.90</td><td>528.9</td><td>176.3</td><td>61,521.30</td><td>61,697.60</td><td>61,873.90</td></tr>
-<tr><td>2026-07-03 00:00 UTC</td><td>61,241.00</td><td>61,739.80</td><td>498.8</td><td>166.266667</td><td>61,407.27</td><td>61,573.53</td><td>61,739.80</td></tr>
-<tr><td>2026-07-02 20:00 UTC</td><td>61,341.50</td><td>61,657.10</td><td>315.6</td><td>105.2</td><td>61,446.70</td><td>61,551.90</td><td>61,657.10</td></tr>
-<tr><td>2026-07-02 16:00 UTC</td><td>61,129.00</td><td>61,949.90</td><td>820.9</td><td>273.633333</td><td>61,402.63</td><td>61,676.27</td><td>61,949.90</td></tr>
-<tr><td>2026-07-02 12:00 UTC</td><td>61,153.20</td><td>62,209.20</td><td>1,056.00</td><td>352</td><td>61,505.20</td><td>61,857.20</td><td>62,209.20</td></tr>
-<tr><td>2026-07-02 08:00 UTC</td><td>60,121.90</td><td>61,429.50</td><td>1,307.60</td><td>435.866667</td><td>60,557.77</td><td>60,993.63</td><td>61,429.50</td></tr>
-<tr><td>2026-07-02 04:00 UTC</td><td>60,095.70</td><td>61,065.70</td><td>970</td><td>323.333333</td><td>60,419.03</td><td>60,742.37</td><td>61,065.70</td></tr>
-<tr><td>2026-07-02 00:00 UTC</td><td>59,582.60</td><td>61,125.30</td><td>1,542.70</td><td>514.233333</td><td>60,096.83</td><td>60,611.07</td><td>61,125.30</td></tr>
-<tr><td>2026-07-01 20:00 UTC</td><td>59,872.50</td><td>61,342.00</td><td>1,469.50</td><td>489.833333</td><td>60,362.33</td><td>60,852.17</td><td>61,342.00</td></tr>
-<tr><td>2026-07-01 16:00 UTC</td><td>59,789.60</td><td>60,357.80</td><td>568.2</td><td>189.4</td><td>59,979.00</td><td>60,168.40</td><td>60,357.80</td></tr>
-<tr><td>2026-07-01 12:00 UTC</td><td>58,320.00</td><td>60,545.40</td><td>2,225.40</td><td>741.8</td><td>59,061.80</td><td>59,803.60</td><td>60,545.40</td></tr>
-<tr><td>2026-07-01 08:00 UTC</td><td>58,491.10</td><td>59,100.00</td><td>608.9</td><td>202.966667</td><td>58,694.07</td><td>58,897.03</td><td>59,100.00</td></tr>
-<tr><td>2026-07-01 04:00 UTC</td><td>58,533.40</td><td>59,458.70</td><td>925.3</td><td>308.433333</td><td>58,841.83</td><td>59,150.27</td><td>59,458.70</td></tr>
-<tr><td>2026-07-01 00:00 UTC</td><td>57,809.40</td><td>59,315.50</td><td>1,506.10</td><td>502.033333</td><td>58,311.43</td><td>58,813.47</td><td>59,315.50</td></tr>
-<tr><td>2026-06-30 20:00 UTC</td><td>58,505.80</td><td>58,875.80</td><td>370</td><td>123.333333</td><td>58,629.13</td><td>58,752.47</td><td>58,875.80</td></tr>
-<tr><td>2026-06-30 16:00 UTC</td><td>58,254.20</td><td>58,838.20</td><td>584</td><td>194.666667</td><td>58,448.87</td><td>58,643.53</td><td>58,838.20</td></tr>
-<tr><td>2026-06-30 12:00 UTC</td><td>58,200.00</td><td>59,283.20</td><td>1,083.20</td><td>361.066667</td><td>58,561.07</td><td>58,922.13</td><td>59,283.20</td></tr>
-<tr><td>2026-06-30 08:00 UTC</td><td>59,126.30</td><td>59,555.90</td><td>429.6</td><td>143.2</td><td>59,269.50</td><td>59,412.70</td><td>59,555.90</td></tr>
-<tr><td>2026-06-30 04:00 UTC</td><td>59,347.60</td><td>59,711.80</td><td>364.2</td><td>121.4</td><td>59,469.00</td><td>59,590.40</td><td>59,711.80</td></tr>
-<tr><td>2026-06-30 00:00 UTC</td><td>59,593.40</td><td>60,277.20</td><td>683.8</td><td>227.933333</td><td>59,821.33</td><td>60,049.27</td><td>60,277.20</td></tr>
-<tr><td>2026-06-29 20:00 UTC</td><td>60,205.20</td><td>60,595.20</td><td>390</td><td>130</td><td>60,335.20</td><td>60,465.20</td><td>60,595.20</td></tr>
-<tr><td>2026-06-29 16:00 UTC</td><td>59,585.30</td><td>60,688.00</td><td>1,102.70</td><td>367.566667</td><td>59,952.87</td><td>60,320.43</td><td>60,688.00</td></tr>
-<tr><td>2026-06-29 12:00 UTC</td><td>59,000.00</td><td>60,789.40</td><td>1,789.40</td><td>596.466667</td><td>59,596.47</td><td>60,192.93</td><td>60,789.40</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    
 
-    <section class="card button-card">
-      <div>
-        <h2>BTC chart</h2>
-        <p class="subtle" style="margin-bottom:0;">GoCharting blocks this shared chart from loading directly inside GitHub Pages, so use the button to open it.</p>
-      </div>
-      <a class="chart-button" href="https://gocharting.com/terminal/chart/_p1jPU7Zg" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
-    </section>
+      <section class="table-section" id="1d">
+        <h2>Last 20 1-day candles</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candle UTC</th>
+                <th>Low</th>
+                <th>High</th>
+                <th>Range</th>
+                <th>1/3</th>
+                <th>Level 1</th>
+                <th>Level 2 / Middle</th>
+                <th>Level 3 / High Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>2026-07-08 00:00 UTC</td><td>61,548.40</td><td>63,762.40</td><td>2,214.00</td><td>738</td><td>62,286.40</td><td>63,024.40</td><td>63,762.40</td></tr>
+<tr><td>2026-07-07 00:00 UTC</td><td>62,663.10</td><td>64,314.20</td><td>1,651.10</td><td>550.366667</td><td>63,213.47</td><td>63,763.83</td><td>64,314.20</td></tr>
+<tr><td>2026-07-06 00:00 UTC</td><td>61,318.30</td><td>64,706.30</td><td>3,388.00</td><td>1,129.33</td><td>62,447.63</td><td>63,576.97</td><td>64,706.30</td></tr>
+<tr><td>2026-07-05 00:00 UTC</td><td>62,444.40</td><td>63,999.80</td><td>1,555.40</td><td>518.466667</td><td>62,962.87</td><td>63,481.33</td><td>63,999.80</td></tr>
+<tr><td>2026-07-04 00:00 UTC</td><td>62,333.10</td><td>63,469.30</td><td>1,136.20</td><td>378.733333</td><td>62,711.83</td><td>63,090.57</td><td>63,469.30</td></tr>
+<tr><td>2026-07-03 00:00 UTC</td><td>61,241.00</td><td>62,964.60</td><td>1,723.60</td><td>574.533333</td><td>61,815.53</td><td>62,390.07</td><td>62,964.60</td></tr>
+<tr><td>2026-07-02 00:00 UTC</td><td>59,582.60</td><td>62,209.20</td><td>2,626.60</td><td>875.533333</td><td>60,458.13</td><td>61,333.67</td><td>62,209.20</td></tr>
+<tr><td>2026-07-01 00:00 UTC</td><td>57,809.40</td><td>61,342.00</td><td>3,532.60</td><td>1,177.53</td><td>58,986.93</td><td>60,164.47</td><td>61,342.00</td></tr>
+<tr><td>2026-06-30 00:00 UTC</td><td>58,200.00</td><td>60,277.20</td><td>2,077.20</td><td>692.4</td><td>58,892.40</td><td>59,584.80</td><td>60,277.20</td></tr>
+<tr><td>2026-06-29 00:00 UTC</td><td>58,896.00</td><td>60,789.40</td><td>1,893.40</td><td>631.133333</td><td>59,527.13</td><td>60,158.27</td><td>60,789.40</td></tr>
+<tr><td>2026-06-28 00:00 UTC</td><td>58,896.20</td><td>60,551.60</td><td>1,655.40</td><td>551.8</td><td>59,448.00</td><td>59,999.80</td><td>60,551.60</td></tr>
+<tr><td>2026-06-27 00:00 UTC</td><td>59,857.50</td><td>60,947.70</td><td>1,090.20</td><td>363.4</td><td>60,220.90</td><td>60,584.30</td><td>60,947.70</td></tr>
+<tr><td>2026-06-26 00:00 UTC</td><td>58,330.50</td><td>60,764.20</td><td>2,433.70</td><td>811.233333</td><td>59,141.73</td><td>59,952.97</td><td>60,764.20</td></tr>
+<tr><td>2026-06-25 00:00 UTC</td><td>58,110.00</td><td>61,964.20</td><td>3,854.20</td><td>1,284.73</td><td>59,394.73</td><td>60,679.47</td><td>61,964.20</td></tr>
+<tr><td>2026-06-24 00:00 UTC</td><td>59,107.00</td><td>63,244.70</td><td>4,137.70</td><td>1,379.23</td><td>60,486.23</td><td>61,865.47</td><td>63,244.70</td></tr>
+<tr><td>2026-06-23 00:00 UTC</td><td>61,930.00</td><td>64,277.30</td><td>2,347.30</td><td>782.433333</td><td>62,712.43</td><td>63,494.87</td><td>64,277.30</td></tr>
+<tr><td>2026-06-22 00:00 UTC</td><td>63,313.10</td><td>65,629.50</td><td>2,316.40</td><td>772.133333</td><td>64,085.23</td><td>64,857.37</td><td>65,629.50</td></tr>
+<tr><td>2026-06-21 00:00 UTC</td><td>63,262.00</td><td>64,594.00</td><td>1,332.00</td><td>444</td><td>63,706.00</td><td>64,150.00</td><td>64,594.00</td></tr>
+<tr><td>2026-06-20 00:00 UTC</td><td>63,200.00</td><td>64,384.50</td><td>1,184.50</td><td>394.833333</td><td>63,594.83</td><td>63,989.67</td><td>64,384.50</td></tr>
+<tr><td>2026-06-19 00:00 UTC</td><td>62,310.10</td><td>63,664.00</td><td>1,353.90</td><td>451.3</td><td>62,761.40</td><td>63,212.70</td><td>63,664.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    
+
+      <section class="table-section" id="1h">
+        <h2>Last 20 1-hour candles</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candle UTC</th>
+                <th>Low</th>
+                <th>High</th>
+                <th>Range</th>
+                <th>1/3</th>
+                <th>Level 1</th>
+                <th>Level 2 / Middle</th>
+                <th>Level 3 / High Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>2026-07-09 15:00 UTC</td><td>62,812.50</td><td>63,254.70</td><td>442.2</td><td>147.4</td><td>62,959.90</td><td>63,107.30</td><td>63,254.70</td></tr>
+<tr><td>2026-07-09 14:00 UTC</td><td>62,663.80</td><td>63,151.20</td><td>487.4</td><td>162.466667</td><td>62,826.27</td><td>62,988.73</td><td>63,151.20</td></tr>
+<tr><td>2026-07-09 13:00 UTC</td><td>62,520.10</td><td>63,240.90</td><td>720.8</td><td>240.266667</td><td>62,760.37</td><td>63,000.63</td><td>63,240.90</td></tr>
+<tr><td>2026-07-09 12:00 UTC</td><td>62,462.10</td><td>62,957.80</td><td>495.7</td><td>165.233333</td><td>62,627.33</td><td>62,792.57</td><td>62,957.80</td></tr>
+<tr><td>2026-07-09 11:00 UTC</td><td>62,615.80</td><td>62,833.70</td><td>217.9</td><td>72.633333</td><td>62,688.43</td><td>62,761.07</td><td>62,833.70</td></tr>
+<tr><td>2026-07-09 10:00 UTC</td><td>62,681.70</td><td>63,055.00</td><td>373.3</td><td>124.433333</td><td>62,806.13</td><td>62,930.57</td><td>63,055.00</td></tr>
+<tr><td>2026-07-09 09:00 UTC</td><td>62,785.00</td><td>63,003.50</td><td>218.5</td><td>72.833333</td><td>62,857.83</td><td>62,930.67</td><td>63,003.50</td></tr>
+<tr><td>2026-07-09 08:00 UTC</td><td>62,846.90</td><td>63,090.90</td><td>244</td><td>81.333333</td><td>62,928.23</td><td>63,009.57</td><td>63,090.90</td></tr>
+<tr><td>2026-07-09 07:00 UTC</td><td>62,798.30</td><td>63,284.80</td><td>486.5</td><td>162.166667</td><td>62,960.47</td><td>63,122.63</td><td>63,284.80</td></tr>
+<tr><td>2026-07-09 06:00 UTC</td><td>62,481.40</td><td>62,979.90</td><td>498.5</td><td>166.166667</td><td>62,647.57</td><td>62,813.73</td><td>62,979.90</td></tr>
+<tr><td>2026-07-09 05:00 UTC</td><td>62,236.50</td><td>62,628.00</td><td>391.5</td><td>130.5</td><td>62,367.00</td><td>62,497.50</td><td>62,628.00</td></tr>
+<tr><td>2026-07-09 04:00 UTC</td><td>61,954.10</td><td>62,461.10</td><td>507</td><td>169</td><td>62,123.10</td><td>62,292.10</td><td>62,461.10</td></tr>
+<tr><td>2026-07-09 03:00 UTC</td><td>61,725.20</td><td>62,064.50</td><td>339.3</td><td>113.1</td><td>61,838.30</td><td>61,951.40</td><td>62,064.50</td></tr>
+<tr><td>2026-07-09 02:00 UTC</td><td>61,697.00</td><td>62,122.30</td><td>425.3</td><td>141.766667</td><td>61,838.77</td><td>61,980.53</td><td>62,122.30</td></tr>
+<tr><td>2026-07-09 01:00 UTC</td><td>61,846.00</td><td>62,645.20</td><td>799.2</td><td>266.4</td><td>62,112.40</td><td>62,378.80</td><td>62,645.20</td></tr>
+<tr><td>2026-07-09 00:00 UTC</td><td>62,059.70</td><td>62,313.20</td><td>253.5</td><td>84.5</td><td>62,144.20</td><td>62,228.70</td><td>62,313.20</td></tr>
+<tr><td>2026-07-08 23:00 UTC</td><td>62,174.30</td><td>62,354.40</td><td>180.1</td><td>60.033333</td><td>62,234.33</td><td>62,294.37</td><td>62,354.40</td></tr>
+<tr><td>2026-07-08 22:00 UTC</td><td>62,172.80</td><td>62,356.40</td><td>183.6</td><td>61.2</td><td>62,234.00</td><td>62,295.20</td><td>62,356.40</td></tr>
+<tr><td>2026-07-08 21:00 UTC</td><td>61,960.70</td><td>62,256.30</td><td>295.6</td><td>98.533333</td><td>62,059.23</td><td>62,157.77</td><td>62,256.30</td></tr>
+<tr><td>2026-07-08 20:00 UTC</td><td>62,084.80</td><td>62,305.30</td><td>220.5</td><td>73.5</td><td>62,158.30</td><td>62,231.80</td><td>62,305.30</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    
+
+      <section class="table-section" id="15m">
+        <h2>Last 20 15-minute candles</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Candle UTC</th>
+                <th>Low</th>
+                <th>High</th>
+                <th>Range</th>
+                <th>1/3</th>
+                <th>Level 1</th>
+                <th>Level 2 / Middle</th>
+                <th>Level 3 / High Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>2026-07-09 16:00 UTC</td><td>62,822.30</td><td>62,994.90</td><td>172.6</td><td>57.533333</td><td>62,879.83</td><td>62,937.37</td><td>62,994.90</td></tr>
+<tr><td>2026-07-09 15:45 UTC</td><td>62,812.50</td><td>63,049.90</td><td>237.4</td><td>79.133333</td><td>62,891.63</td><td>62,970.77</td><td>63,049.90</td></tr>
+<tr><td>2026-07-09 15:30 UTC</td><td>62,878.70</td><td>63,087.20</td><td>208.5</td><td>69.5</td><td>62,948.20</td><td>63,017.70</td><td>63,087.20</td></tr>
+<tr><td>2026-07-09 15:15 UTC</td><td>62,942.90</td><td>63,254.70</td><td>311.8</td><td>103.933333</td><td>63,046.83</td><td>63,150.77</td><td>63,254.70</td></tr>
+<tr><td>2026-07-09 15:00 UTC</td><td>62,919.20</td><td>63,204.30</td><td>285.1</td><td>95.033333</td><td>63,014.23</td><td>63,109.27</td><td>63,204.30</td></tr>
+<tr><td>2026-07-09 14:45 UTC</td><td>62,814.80</td><td>63,043.80</td><td>229</td><td>76.333333</td><td>62,891.13</td><td>62,967.47</td><td>63,043.80</td></tr>
+<tr><td>2026-07-09 14:30 UTC</td><td>62,737.80</td><td>62,999.90</td><td>262.1</td><td>87.366667</td><td>62,825.17</td><td>62,912.53</td><td>62,999.90</td></tr>
+<tr><td>2026-07-09 14:15 UTC</td><td>62,663.80</td><td>62,926.50</td><td>262.7</td><td>87.566667</td><td>62,751.37</td><td>62,838.93</td><td>62,926.50</td></tr>
+<tr><td>2026-07-09 14:00 UTC</td><td>62,859.80</td><td>63,151.20</td><td>291.4</td><td>97.133333</td><td>62,956.93</td><td>63,054.07</td><td>63,151.20</td></tr>
+<tr><td>2026-07-09 13:45 UTC</td><td>62,813.20</td><td>63,240.90</td><td>427.7</td><td>142.566667</td><td>62,955.77</td><td>63,098.33</td><td>63,240.90</td></tr>
+<tr><td>2026-07-09 13:30 UTC</td><td>62,520.10</td><td>62,988.60</td><td>468.5</td><td>156.166667</td><td>62,676.27</td><td>62,832.43</td><td>62,988.60</td></tr>
+<tr><td>2026-07-09 13:15 UTC</td><td>62,686.20</td><td>62,879.50</td><td>193.3</td><td>64.433333</td><td>62,750.63</td><td>62,815.07</td><td>62,879.50</td></tr>
+<tr><td>2026-07-09 13:00 UTC</td><td>62,610.90</td><td>62,920.00</td><td>309.1</td><td>103.033333</td><td>62,713.93</td><td>62,816.97</td><td>62,920.00</td></tr>
+<tr><td>2026-07-09 12:45 UTC</td><td>62,462.10</td><td>62,672.30</td><td>210.2</td><td>70.066667</td><td>62,532.17</td><td>62,602.23</td><td>62,672.30</td></tr>
+<tr><td>2026-07-09 12:30 UTC</td><td>62,584.60</td><td>62,957.80</td><td>373.2</td><td>124.4</td><td>62,709.00</td><td>62,833.40</td><td>62,957.80</td></tr>
+<tr><td>2026-07-09 12:15 UTC</td><td>62,597.20</td><td>62,879.30</td><td>282.1</td><td>94.033333</td><td>62,691.23</td><td>62,785.27</td><td>62,879.30</td></tr>
+<tr><td>2026-07-09 12:00 UTC</td><td>62,658.50</td><td>62,874.00</td><td>215.5</td><td>71.833333</td><td>62,730.33</td><td>62,802.17</td><td>62,874.00</td></tr>
+<tr><td>2026-07-09 11:45 UTC</td><td>62,617.40</td><td>62,816.40</td><td>199</td><td>66.333333</td><td>62,683.73</td><td>62,750.07</td><td>62,816.40</td></tr>
+<tr><td>2026-07-09 11:30 UTC</td><td>62,615.80</td><td>62,734.70</td><td>118.9</td><td>39.633333</td><td>62,655.43</td><td>62,695.07</td><td>62,734.70</td></tr>
+<tr><td>2026-07-09 11:15 UTC</td><td>62,664.60</td><td>62,800.00</td><td>135.4</td><td>45.133333</td><td>62,709.73</td><td>62,754.87</td><td>62,800.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    
   </main>
 </body>
 </html>
