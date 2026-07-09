@@ -1,55 +1,26 @@
 # BTC/USDT 4H Rule of Thirds
 
-This repo automatically calculates the Rule of Thirds for BTC/USDT using fully closed 4-hour candles.
+This repo calculates the BTC/USDT Rule of Thirds from fully closed 4-hour candles and publishes a clean GitHub Pages results page.
 
-Formula:
+It shows:
+
+- Latest fully closed BTC/USDT 4H candle
+- Last 10 days of 4H candles
+- Rule of Thirds levels for each candle
+- A link button to the GoCharting chart
+
+The GoCharting chart is linked, not embedded, because shared GoCharting chart URLs may be blocked from loading inside GitHub Pages iframes.
+
+## Formula
 
 ```text
 range = high - low
 one_third = range / 3
 level_1 = low + one_third
-level_2_middle = level_1 + one_third
-level_3_high_average = level_2_middle + one_third
+level_2 = level_1 + one_third
+level_3 = level_2 + one_third
 ```
 
-The GitHub Pages homepage shows only the results:
+## Data source
 
-- Latest fully closed 4H candle
-- Last 10 days of fully closed 4H candles
-- Embedded GoCharting chart from `https://gocharting.com/terminal/chart/_p1jPU7Zg`
-
-Rule-of-Thirds data source: OKX public candlesticks for `BTC-USDT` with `bar=4H`.
-
-Chart source: GoCharting shared chart link: `https://gocharting.com/terminal/chart/_p1jPU7Zg`.
-
-## Run manually
-
-Go to:
-
-```text
-Actions → BTC 4H Rule of Thirds → Run workflow
-```
-
-## Automatic schedule
-
-The workflow runs every 4 hours, shortly after the 4H candle closes:
-
-```text
-00:12 UTC
-04:12 UTC
-08:12 UTC
-12:12 UTC
-16:12 UTC
-20:12 UTC
-```
-
-## Files updated by the automation
-
-```text
-index.html
-results/latest.md
-results/last_10_days.md
-results/history.csv
-```
-
-This is only a calculator/automation tool. It is not financial advice or a trading recommendation.
+Rule of Thirds calculations use OKX public BTC-USDT 4H candles. The GoCharting chart link is only for visual reference.
