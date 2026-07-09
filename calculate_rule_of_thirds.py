@@ -37,6 +37,7 @@ INDEX_HTML = ROOT / "index.html"
 
 OKX_CANDLES_URL = "https://www.okx.com/api/v5/market/candles"
 SOURCE_LABEL = "OKX public candles"
+GOCHARTING_CHART_URL = "https://gocharting.com/terminal/chart/_p1jPU7Zg"
 
 
 @dataclass(frozen=True)
@@ -357,6 +358,33 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
       z-index: 1;
     }}
     tr:hover td {{ background: rgba(247,147,26,0.08); }}
+    .chart-section {{
+      margin-top: 30px;
+    }}
+    .chart-frame-wrap {{
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--card-2);
+      min-height: 720px;
+    }}
+    .chart-frame {{
+      display: block;
+      width: 100%;
+      height: 720px;
+      border: 0;
+      background: var(--card-2);
+    }}
+    .chart-link {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: #ffd199;
+      text-decoration: none;
+      font-weight: 750;
+    }}
+    .chart-link:hover {{ text-decoration: underline; }}
     footer {{
       margin-top: 22px;
       font-size: .92rem;
@@ -441,6 +469,21 @@ def render_index(results: list[CandleResult], updated_at: datetime, days: int) -
           </tbody>
         </table>
       </div>
+
+      <section class="chart-section">
+        <h2>BTC 4H chart</h2>
+        <div class="subtitle" style="margin-bottom:12px;">GoCharting chart provided from your shared chart link.</div>
+        <div class="chart-frame-wrap">
+          <iframe
+            class="chart-frame"
+            src="{html.escape(GOCHARTING_CHART_URL)}"
+            title="BTC 4H GoCharting chart"
+            loading="lazy"
+            allowfullscreen>
+          </iframe>
+        </div>
+        <a class="chart-link" href="{html.escape(GOCHARTING_CHART_URL)}" target="_blank" rel="noopener noreferrer">Open chart in GoCharting →</a>
+      </section>
 
       <footer>
         This page is an automated calculator only. It is not financial advice or a trading recommendation.
