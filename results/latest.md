@@ -2,15 +2,15 @@
 
 ## 4H
 
-Candle open UTC: 2026-07-18T00:00:00+00:00
-Candle close UTC: 2026-07-18T04:00:00+00:00
-Low: 63,886.600
-High: 64,035.300
-Range: 148.700
-One Third: 49.567
-Level 1: 63,936.167
-Level 2 / Middle: 63,985.733
-Level 3 / High Average: 64,035.300
+Candle open UTC: 2026-07-18T04:00:00+00:00
+Candle close UTC: 2026-07-18T08:00:00+00:00
+Low: 63,934.000
+High: 64,028.000
+Range: 94.000
+One Third: 31.333
+Level 1: 63,965.333
+Level 2 / Middle: 63,996.667
+Level 3 / High Average: 64,028.000
 
 ## 1D
 
@@ -26,26 +26,26 @@ Level 3 / High Average: 64,391.900
 
 ## 1H
 
-Candle open UTC: 2026-07-18T05:00:00+00:00
-Candle close UTC: 2026-07-18T06:00:00+00:00
-Low: 63,934.000
-High: 64,000.000
-Range: 66.000
-One Third: 22.000
-Level 1: 63,956.000
-Level 2 / Middle: 63,978.000
-Level 3 / High Average: 64,000.000
+Candle open UTC: 2026-07-18T07:00:00+00:00
+Candle close UTC: 2026-07-18T08:00:00+00:00
+Low: 63,982.000
+High: 64,028.000
+Range: 46.000
+One Third: 15.333
+Level 1: 63,997.333
+Level 2 / Middle: 64,012.667
+Level 3 / High Average: 64,028.000
 
 ## 15M
 
-Candle open UTC: 2026-07-18T06:00:00+00:00
-Candle close UTC: 2026-07-18T06:15:00+00:00
-Low: 63,951.400
-High: 63,972.000
-Range: 20.600
-One Third: 6.867
-Level 1: 63,958.267
-Level 2 / Middle: 63,965.133
-Level 3 / High Average: 63,972.000
+Candle open UTC: 2026-07-18T08:00:00+00:00
+Candle close UTC: 2026-07-18T08:15:00+00:00
+Low: 63,955.300
+High: 64,014.600
+Range: 59.300
+One Third: 19.767
+Level 1: 63,975.067
+Level 2 / Middle: 63,994.833
+Level 3 / High Average: 64,014.600
 
-Updated UTC: 2026-07-18T06:23:42.792012+00:00
+Updated UTC: 2026-07-18T08:25:08.279044+00:00
