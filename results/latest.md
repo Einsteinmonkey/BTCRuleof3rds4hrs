@@ -2,50 +2,50 @@
 
 ## 4H
 
-Candle open UTC: 2026-08-03T16:00:00+00:00
-Candle close UTC: 2026-08-03T20:00:00+00:00
-Low: 63,659.200
-High: 64,085.900
-Range: 426.700
-One Third: 142.233
-Level 1: 63,801.433
-Level 2 / Middle: 63,943.667
-Level 3 / High Average: 64,085.900
+Candle open UTC: 2026-08-03T20:00:00+00:00
+Candle close UTC: 2026-08-04T00:00:00+00:00
+Low: 63,400.000
+High: 64,028.700
+Range: 628.700
+One Third: 209.567
+Level 1: 63,609.567
+Level 2 / Middle: 63,819.133
+Level 3 / High Average: 64,028.700
 
 ## 1D
 
-Candle open UTC: 2026-08-02T00:00:00+00:00
-Candle close UTC: 2026-08-03T00:00:00+00:00
-Low: 62,806.600
-High: 63,799.300
-Range: 992.700
-One Third: 330.900
-Level 1: 63,137.500
-Level 2 / Middle: 63,468.400
-Level 3 / High Average: 63,799.300
+Candle open UTC: 2026-08-03T00:00:00+00:00
+Candle close UTC: 2026-08-04T00:00:00+00:00
+Low: 62,300.000
+High: 64,085.900
+Range: 1,785.900
+One Third: 595.300
+Level 1: 62,895.300
+Level 2 / Middle: 63,490.600
+Level 3 / High Average: 64,085.900
 
 ## 1H
 
-Candle open UTC: 2026-08-03T22:00:00+00:00
-Candle close UTC: 2026-08-03T23:00:00+00:00
-Low: 63,400.000
-High: 63,681.400
-Range: 281.400
-One Third: 93.800
-Level 1: 63,493.800
-Level 2 / Middle: 63,587.600
-Level 3 / High Average: 63,681.400
+Candle open UTC: 2026-08-04T00:00:00+00:00
+Candle close UTC: 2026-08-04T01:00:00+00:00
+Low: 63,328.000
+High: 63,591.100
+Range: 263.100
+One Third: 87.700
+Level 1: 63,415.700
+Level 2 / Middle: 63,503.400
+Level 3 / High Average: 63,591.100
 
 ## 15M
 
-Candle open UTC: 2026-08-03T23:15:00+00:00
-Candle close UTC: 2026-08-03T23:30:00+00:00
-Low: 63,538.400
-High: 63,626.100
-Range: 87.700
-One Third: 29.233
-Level 1: 63,567.633
-Level 2 / Middle: 63,596.867
-Level 3 / High Average: 63,626.100
+Candle open UTC: 2026-08-04T00:45:00+00:00
+Candle close UTC: 2026-08-04T01:00:00+00:00
+Low: 63,328.000
+High: 63,488.400
+Range: 160.400
+One Third: 53.467
+Level 1: 63,381.467
+Level 2 / Middle: 63,434.933
+Level 3 / High Average: 63,488.400
 
-Updated UTC: 2026-08-03T23:41:45.551922+00:00
+Updated UTC: 2026-08-04T01:10:00.105962+00:00
