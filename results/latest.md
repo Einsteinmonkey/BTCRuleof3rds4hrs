@@ -2,50 +2,50 @@
 
 ## 4H
 
-Candle open UTC: 2026-10-13T16:00:00+00:00
-Candle close UTC: 2026-10-13T20:00:00+00:00
-Low: 82,956.300
-High: 83,611.600
-Range: 655.300
-One Third: 218.433
-Level 1: 83,174.733
-Level 2 / Middle: 83,393.167
-Level 3 / High Average: 83,611.600
+Candle open UTC: 2026-10-13T20:00:00+00:00
+Candle close UTC: 2026-10-14T00:00:00+00:00
+Low: 83,135.300
+High: 83,548.300
+Range: 413.000
+One Third: 137.667
+Level 1: 83,272.967
+Level 2 / Middle: 83,410.633
+Level 3 / High Average: 83,548.300
 
 ## 1D
 
-Candle open UTC: 2026-10-12T00:00:00+00:00
-Candle close UTC: 2026-10-13T00:00:00+00:00
-Low: 81,767.000
-High: 84,361.600
-Range: 2,594.600
-One Third: 864.867
-Level 1: 82,631.867
-Level 2 / Middle: 83,496.733
-Level 3 / High Average: 84,361.600
+Candle open UTC: 2026-10-13T00:00:00+00:00
+Candle close UTC: 2026-10-14T00:00:00+00:00
+Low: 81,032.800
+High: 84,166.300
+Range: 3,133.500
+One Third: 1,044.500
+Level 1: 82,077.300
+Level 2 / Middle: 83,121.800
+Level 3 / High Average: 84,166.300
 
 ## 1H
 
-Candle open UTC: 2026-10-13T20:00:00+00:00
-Candle close UTC: 2026-10-13T21:00:00+00:00
-Low: 83,179.900
-High: 83,442.400
-Range: 262.500
-One Third: 87.500
-Level 1: 83,267.400
-Level 2 / Middle: 83,354.900
-Level 3 / High Average: 83,442.400
+Candle open UTC: 2026-10-13T23:00:00+00:00
+Candle close UTC: 2026-10-14T00:00:00+00:00
+Low: 83,135.300
+High: 83,523.900
+Range: 388.600
+One Third: 129.533
+Level 1: 83,264.833
+Level 2 / Middle: 83,394.367
+Level 3 / High Average: 83,523.900
 
 ## 15M
 
-Candle open UTC: 2026-10-13T21:00:00+00:00
-Candle close UTC: 2026-10-13T21:15:00+00:00
-Low: 83,375.000
-High: 83,433.600
-Range: 58.600
-One Third: 19.533
-Level 1: 83,394.533
-Level 2 / Middle: 83,414.067
-Level 3 / High Average: 83,433.600
+Candle open UTC: 2026-10-14T00:15:00+00:00
+Candle close UTC: 2026-10-14T00:30:00+00:00
+Low: 83,397.000
+High: 83,483.300
+Range: 86.300
+One Third: 28.767
+Level 1: 83,425.767
+Level 2 / Middle: 83,454.533
+Level 3 / High Average: 83,483.300
 
-Updated UTC: 2026-10-13T21:29:44.153032+00:00
+Updated UTC: 2026-10-14T00:33:45.543906+00:00
