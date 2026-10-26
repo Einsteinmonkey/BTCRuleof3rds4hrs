@@ -2,50 +2,50 @@
 
 ## 4H
 
-Candle open UTC: 2026-10-25T16:00:00+00:00
-Candle close UTC: 2026-10-25T20:00:00+00:00
-Low: 80,530.900
-High: 80,955.600
-Range: 424.700
-One Third: 141.567
-Level 1: 80,672.467
-Level 2 / Middle: 80,814.033
-Level 3 / High Average: 80,955.600
+Candle open UTC: 2026-10-25T20:00:00+00:00
+Candle close UTC: 2026-10-26T00:00:00+00:00
+Low: 79,840.000
+High: 80,736.800
+Range: 896.800
+One Third: 298.933
+Level 1: 80,138.933
+Level 2 / Middle: 80,437.867
+Level 3 / High Average: 80,736.800
 
 ## 1D
 
-Candle open UTC: 2026-10-24T00:00:00+00:00
-Candle close UTC: 2026-10-25T00:00:00+00:00
-Low: 79,220.100
-High: 81,212.400
-Range: 1,992.300
-One Third: 664.100
-Level 1: 79,884.200
-Level 2 / Middle: 80,548.300
-Level 3 / High Average: 81,212.400
+Candle open UTC: 2026-10-25T00:00:00+00:00
+Candle close UTC: 2026-10-26T00:00:00+00:00
+Low: 79,840.000
+High: 81,070.000
+Range: 1,230.000
+One Third: 410.000
+Level 1: 80,250.000
+Level 2 / Middle: 80,660.000
+Level 3 / High Average: 81,070.000
 
 ## 1H
 
-Candle open UTC: 2026-10-25T20:00:00+00:00
-Candle close UTC: 2026-10-25T21:00:00+00:00
-Low: 80,434.500
-High: 80,631.100
-Range: 196.600
-One Third: 65.533
-Level 1: 80,500.033
-Level 2 / Middle: 80,565.567
-Level 3 / High Average: 80,631.100
+Candle open UTC: 2026-10-25T23:00:00+00:00
+Candle close UTC: 2026-10-26T00:00:00+00:00
+Low: 79,840.000
+High: 80,483.400
+Range: 643.400
+One Third: 214.467
+Level 1: 80,054.467
+Level 2 / Middle: 80,268.933
+Level 3 / High Average: 80,483.400
 
 ## 15M
 
-Candle open UTC: 2026-10-25T21:30:00+00:00
-Candle close UTC: 2026-10-25T21:45:00+00:00
-Low: 80,391.300
-High: 80,526.500
-Range: 135.200
-One Third: 45.067
-Level 1: 80,436.367
-Level 2 / Middle: 80,481.433
-Level 3 / High Average: 80,526.500
+Candle open UTC: 2026-10-25T23:45:00+00:00
+Candle close UTC: 2026-10-26T00:00:00+00:00
+Low: 79,850.100
+High: 80,205.200
+Range: 355.100
+One Third: 118.367
+Level 1: 79,968.467
+Level 2 / Middle: 80,086.833
+Level 3 / High Average: 80,205.200
 
-Updated UTC: 2026-10-25T21:53:07.347526+00:00
+Updated UTC: 2026-10-26T00:09:45.480694+00:00
